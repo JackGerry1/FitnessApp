@@ -1,5 +1,6 @@
 package com.example.fitnessapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
@@ -34,6 +35,11 @@ class SignUpActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         auth = Firebase.auth
+
+        binding.textViewLogin.setOnClickListener {
+            val intent = Intent(this, SignInActivity::class.java)
+            startActivity(intent)
+        }
 
         binding.btnSignUp.setOnClickListener {
             val email = binding.etEmail.text.toString()
