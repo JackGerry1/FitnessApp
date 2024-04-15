@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -38,6 +40,12 @@ class SignUpActivity : AppCompatActivity() {
         auth = Firebase.auth
         val db = FirebaseFirestore.getInstance()
 
+        // Set up spinner for sex selection
+        val sexOptions = arrayOf("Male", "Female")
+        val spinner: Spinner = findViewById(R.id.spinnerSex)
+        val adapter: ArrayAdapter<String> = ArrayAdapter(this, android.R.layout.simple_spinner_item, sexOptions)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
 
         binding.textViewLogin.setOnClickListener {
             val intent = Intent(this, SignInActivity::class.java)
@@ -45,7 +53,12 @@ class SignUpActivity : AppCompatActivity() {
         }
 
         binding.btnSignUp.setOnClickListener {
+            val username = binding.etUsername.text.toString()
             val email = binding.etEmail.text.toString()
+            val age = binding.etAge.text.toString()
+            val sex = sexOptions[spinner.selectedItemPosition]
+            val height = binding.etHeight.text.toString()
+            val weight = binding.etWeight.text.toString()
             val password = binding.etPassword.text.toString()
 
             if (checkAllFields()) {
@@ -56,8 +69,13 @@ class SignUpActivity : AppCompatActivity() {
                         user?.let { currentUser ->
                             // Create a new document in "users" collection with the user's UID as the document ID
                             val userData = hashMapOf(
-                                "email" to email
-                                // You can add more user data here as needed
+                                "uid" to currentUser.uid,
+                                "username" to username,
+                                "email" to email,
+                                "age" to age,
+                                "sex" to sex,
+                                "height" to height,
+                                "weight" to weight
                             )
                             db.collection("users")
                                 .document(currentUser.uid)
@@ -86,6 +104,12 @@ class SignUpActivity : AppCompatActivity() {
     }
     private fun checkAllFields(): Boolean {
         val email = binding.etEmail.text.toString()
+
+        if(binding.etUsername.text.toString() == "") {
+            binding.textInputLayoutUsername.error = "This is a required field"
+            return false
+        }
+
         if(binding.etEmail.text.toString() == "") {
             binding.textInputLayoutEmail.error = "This is a required field"
             return false
@@ -93,6 +117,21 @@ class SignUpActivity : AppCompatActivity() {
 
         if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             binding.textInputLayoutEmail.error = "Invalid Email Format"
+            return false
+        }
+
+        if(binding.etAge.text.toString() == "") {
+            binding.textInputLayoutAge.error = "This is a required field"
+            return false
+        }
+
+        if(binding.etHeight.text.toString() == "") {
+            binding.textInputLayoutHeight.error = "This is a required field"
+            return false
+        }
+
+        if(binding.etWeight.text.toString() == "") {
+            binding.textInputLayoutWeight.error = "This is a required field"
             return false
         }
 

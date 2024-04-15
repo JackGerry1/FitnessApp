@@ -35,6 +35,15 @@ class SignInActivity : AppCompatActivity() {
 
         auth = Firebase.auth
 
+        // Log the current user if available
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            Log.d("SignInActivity", "Current user: ${currentUser.email}")
+        }
+        else {
+            Log.d("SignInActivity", "No Current User Info")
+        }
+
         binding.textViewSignUp.setOnClickListener {
             val intent = Intent(this, SignUpActivity::class.java)
             startActivity(intent)

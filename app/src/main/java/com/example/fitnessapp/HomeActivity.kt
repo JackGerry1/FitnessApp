@@ -11,11 +11,14 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.fitnessapp.databinding.ActivityHomeBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
     private lateinit var binding: ActivityHomeBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +36,7 @@ class HomeActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         auth = Firebase.auth
+        firestore = Firebase.firestore
 
         binding.btnSignOut.setOnClickListener {
             auth.signOut()
@@ -41,5 +45,36 @@ class HomeActivity : AppCompatActivity() {
 
             finish()
         }
+
+        val currentUser = auth.currentUser
+
+        // Get user document from Firestore
+        val userRef = firestore.collection("users").document(currentUser!!.uid)
+        userRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    // Document exists, update UI with user data
+                    val username = document.getString("username")
+                    val email = document.getString("email")
+                    val age = document.getString("age")
+                    val sex = document.getString("sex")
+                    val height = document.getString("height")
+                    val weight = document.getString("weight")
+
+                    // Update UI with user data
+                    binding.textViewUsername.text = "Username: $username"
+                    binding.textViewEmail.text = "Email: $email"
+                    binding.textViewAge.text = "Age: $age"
+                    binding.textViewSex.text = "Sex: $sex"
+                    binding.textViewHeight.text = "Height: $height"
+                    binding.textViewWeight.text = "Weight: $weight"
+
+                } else {
+                    Log.d("HomeActivity", "User document not found")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d("HomeActivity", "Failed to get user document: $exception")
+            }
     }
 }
