@@ -83,7 +83,7 @@ class SignUpActivity : AppCompatActivity() {
                                 .addOnSuccessListener {
                                     // Document creation successful
                                     Toast.makeText(this, "Account Created Successfully", Toast.LENGTH_SHORT).show()
-                                    val intent = Intent(this, SignInActivity::class.java)
+                                    val intent = Intent(this, ProfilePictureActivity::class.java)
                                     startActivity(intent)
                                     finish()
                                 }

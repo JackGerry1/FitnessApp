@@ -3,11 +3,14 @@ package com.example.fitnessapp
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.fitnessapp.databinding.ActivityHomeBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -38,11 +41,12 @@ class HomeActivity : AppCompatActivity() {
         auth = Firebase.auth
         firestore = Firebase.firestore
 
+        val imgReceivedProfilePictureActivity: ImageView = binding.imgReceivedProfilePicture
+
         binding.btnSignOut.setOnClickListener {
             auth.signOut()
             val intent = Intent(this, SignInActivity::class.java)
             startActivity(intent)
-
             finish()
         }
 
@@ -60,14 +64,23 @@ class HomeActivity : AppCompatActivity() {
                     val sex = document.getString("sex")
                     val height = document.getString("height")
                     val weight = document.getString("weight")
+                    val url = document.getString("photoURL")
 
-                    // Update UI with user data
+                    /*// Update UI with user data
                     binding.textViewUsername.text = "Username: $username"
                     binding.textViewEmail.text = "Email: $email"
                     binding.textViewAge.text = "Age: $age"
                     binding.textViewSex.text = "Sex: $sex"
                     binding.textViewHeight.text = "Height: $height"
-                    binding.textViewWeight.text = "Weight: $weight"
+                    binding.textViewWeight.text = "Weight: $weight"*/
+
+                    // Inside onSuccess listener
+                    if (url != null) {
+                        Glide.with(this)
+                            .load(url)
+                            .transform(CircleCrop()) // Apply circular transformation
+                            .into(imgReceivedProfilePictureActivity)
+                    }
 
                 } else {
                     Log.d("HomeActivity", "User document not found")

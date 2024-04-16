@@ -13,6 +13,12 @@
         android:theme="@style/Theme.FitnessApp"
         tools:targetApi="31">
         <activity
+            android:name=".ProfilePictureActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProfilePictureLayout"
+            android:exported="false" />
+        <activity
             android:name=".HomeActivity"
             android:exported="false" />
         <activity
