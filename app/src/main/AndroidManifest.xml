@@ -16,9 +16,6 @@
             android:name=".ProfilePictureActivity"
             android:exported="false" />
         <activity
-            android:name=".ProfilePictureLayout"
-            android:exported="false" />
-        <activity
             android:name=".HomeActivity"
             android:exported="false" />
         <activity

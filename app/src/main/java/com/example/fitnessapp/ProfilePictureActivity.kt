@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
@@ -21,17 +22,18 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
+import java.io.File
 
 class ProfilePictureActivity : AppCompatActivity() {
     private lateinit var image: ImageView
     private lateinit var btnGallery: Button
+    private lateinit var btnCamera: Button
     private lateinit var btnUpload: Button
     private lateinit var btnSkip: Button
-
     private lateinit var auth: FirebaseAuth
     private var storageRef = Firebase.storage
-
     private lateinit var uri: Uri
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -48,9 +50,9 @@ class ProfilePictureActivity : AppCompatActivity() {
 
         image = findViewById(R.id.imgProfilePicture)
         btnGallery = findViewById(R.id.btnGallery)
+        btnCamera = findViewById(R.id.btnCamera)
         btnUpload = findViewById(R.id.btnUpload)
         btnSkip = findViewById(R.id.btnSkip)
-
         val galleryImage =
             registerForActivityResult(ActivityResultContracts.GetContent(), ActivityResultCallback {
                 image.setImageURI(it)
@@ -74,6 +76,9 @@ class ProfilePictureActivity : AppCompatActivity() {
         }
 
         // TODO: create the ability to take picture from camera and upload it.
+        btnCamera.setOnClickListener {
+
+        }
 
         btnUpload.setOnClickListener {
             storageRef.getReference("Images").child(System.currentTimeMillis().toString())
