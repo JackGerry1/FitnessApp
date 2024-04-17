@@ -26,17 +26,30 @@ import java.io.File
 
 class ProfilePictureActivity : AppCompatActivity() {
     private lateinit var image: ImageView
-    private lateinit var btnGallery: Button
-    private lateinit var btnCamera: Button
-    private lateinit var btnUpload: Button
+    private lateinit var uri: Uri
     private lateinit var btnSkip: Button
+    private lateinit var btnUpload: Button
+    private lateinit var btnGallery: Button
     private lateinit var auth: FirebaseAuth
     private var storageRef = Firebase.storage
-    private lateinit var uri: Uri
+
+    private val contract = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            // Update URI after taking picture
+            uri = Uri.fromFile(File(filesDir, "camera_photos.png"))
+            image.setImageURI(null)
+            image.setImageURI(uri)
+            Glide.with(this)
+                .load(uri)
+                .transform(CircleCrop()) // Apply circular transformation
+                .into(image)
+        } else {
+            Toast.makeText(this, "Picture not uploaded. Your profile picture remains unchanged.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_profile_picture)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -48,11 +61,18 @@ class ProfilePictureActivity : AppCompatActivity() {
         val db = FirebaseFirestore.getInstance()
         storageRef = FirebaseStorage.getInstance()
 
-        image = findViewById(R.id.imgProfilePicture)
-        btnGallery = findViewById(R.id.btnGallery)
-        btnCamera = findViewById(R.id.btnCamera)
         btnUpload = findViewById(R.id.btnUpload)
         btnSkip = findViewById(R.id.btnSkip)
+        btnGallery = findViewById(R.id.btnGallery)
+        image = findViewById(R.id.imgProfilePicture)
+
+        val btnCamera = findViewById<Button>(R.id.btnCamera)
+        btnCamera.setOnClickListener {
+            // Update URI before launching camera
+            uri = createImageUri()
+            contract.launch(uri)
+        }
+
         val galleryImage =
             registerForActivityResult(ActivityResultContracts.GetContent(), ActivityResultCallback {
                 image.setImageURI(it)
@@ -65,53 +85,56 @@ class ProfilePictureActivity : AppCompatActivity() {
                 }
             })
 
+        btnGallery.setOnClickListener {
+            galleryImage.launch("image/*")
+        }
+
         btnSkip.setOnClickListener {
             val intent = Intent(this, SignInActivity::class.java)
             startActivity(intent)
             finish()
         }
 
-        btnGallery.setOnClickListener {
-            galleryImage.launch("image/*")
-        }
-
-        // TODO: create the ability to take picture from camera and upload it.
-        btnCamera.setOnClickListener {
-
-        }
-
         btnUpload.setOnClickListener {
             storageRef.getReference("Images").child(System.currentTimeMillis().toString())
                 .putFile(uri).addOnSuccessListener { task ->
-                task.metadata!!.reference!!.downloadUrl.addOnSuccessListener {
-                    val userUID = auth.currentUser!!.uid
-                    val profilePictureData = hashMapOf(
-                        "photoURL" to it.toString()
-                    )
+                    task.metadata!!.reference!!.downloadUrl.addOnSuccessListener {
+                        val userUID = auth.currentUser!!.uid
+                        val profilePictureData = hashMapOf(
+                            "photoURL" to it.toString()
+                        )
 
-                    db.collection("users").document(userUID)
-                        .set(profilePictureData, SetOptions.merge())
-                        .addOnSuccessListener {
-                            Toast.makeText(
-                                this,
-                                "Profile Picture Successfully Uploaded",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        db.collection("users").document(userUID)
+                            .set(profilePictureData, SetOptions.merge())
+                            .addOnSuccessListener {
+                                Toast.makeText(
+                                    this,
+                                    "Profile Picture Successfully Uploaded",
+                                    Toast.LENGTH_SHORT
+                                ).show()
 
-                            val intent = Intent(this, SignInActivity::class.java)
-                            startActivity(intent)
-                            finish()
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(
-                                this,
-                                "FAILURE TO UPLOAD PROFILE PICTURE",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                                val intent = Intent(this, SignInActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(
+                                    this,
+                                    "FAILURE TO UPLOAD PROFILE PICTURE",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                    }
                 }
-            }
-
         }
+    }
+
+    private fun createImageUri(): Uri {
+        val image = File(filesDir, "camera_photos.png")
+        return FileProvider.getUriForFile(
+            this,
+            "com.coding.fitnessapp.FileProvider",
+            image
+        )
     }
 }
