@@ -16,6 +16,7 @@ import com.google.firebase.ktx.Firebase
 
 class SignInActivity : AppCompatActivity() {
 
+    // firebase and binding globals
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivitySignInBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,27 +34,27 @@ class SignInActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
+        // firebase auth
         auth = Firebase.auth
 
-        // Log the current user if available
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            Log.d("SignInActivity", "Current user: ${currentUser.email}")
-        }
-        else {
-            Log.d("SignInActivity", "No Current User Info")
-        }
-
+        // link back to signup
         binding.textViewSignUp.setOnClickListener {
             val intent = Intent(this, SignUpActivity::class.java)
             startActivity(intent)
         }
 
+        // sign in logic
         binding.btnSignIn.setOnClickListener {
+            // take the value of email and password
             val email = binding.etEmail.text.toString()
             val password = binding.etPassword.text.toString()
+
+            // all fields are filled
             if(checkAllFields()) {
+                // pass email and password to firebase
                 auth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
+
+                    // signin in the user and navigate to the home activityu
                     if(it.isSuccessful) {
                         Toast.makeText(this, "Succesfully Signed In", Toast.LENGTH_SHORT).show()
                         val intent = Intent(this, HomeActivity::class.java)
@@ -61,13 +62,14 @@ class SignInActivity : AppCompatActivity() {
                         finish()
                     }
                     else {
-                        Log.e("error ", it.exception.toString())
+                        Toast.makeText(this, "error " + it.exception.toString(), Toast.LENGTH_SHORT).show()
                     }
                 }
             }
         }
     }
 
+    // function that checks all fields to make sure that the email is valid and password is long enough
     private fun checkAllFields(): Boolean {
         val email = binding.etEmail.text.toString()
         if(binding.etEmail.text.toString() == "") {

@@ -17,8 +17,18 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 
+
+/*
+References:
+
+    Firebase (2024a). Add Data to Cloud Firestore.
+    [online] Firebase. Available at: https://firebase.google.com/docs/firestore/manage-data/add-data#kotlin+ktx_2 [Accessed 18 Apr. 2024].
+
+*/
+
 class SignUpActivity : AppCompatActivity() {
 
+    // globals for firebase auth and binding
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivitySignUpBinding
 
@@ -37,8 +47,10 @@ class SignUpActivity : AppCompatActivity() {
 
         supportActionBar?.hide()
 
+        // auth and firestore
         auth = Firebase.auth
         val db = FirebaseFirestore.getInstance()
+
 
         // Set up spinner for sex selection
         val sexOptions = arrayOf("Male", "Female")
@@ -47,12 +59,16 @@ class SignUpActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter
 
+        // link to sign in page
         binding.textViewLogin.setOnClickListener {
             val intent = Intent(this, SignInActivity::class.java)
             startActivity(intent)
         }
 
+        // signup functionality
         binding.btnSignUp.setOnClickListener {
+
+            // values for all fields
             val username = binding.etUsername.text.toString()
             val email = binding.etEmail.text.toString()
             val age = binding.etAge.text.toString()
@@ -61,7 +77,10 @@ class SignUpActivity : AppCompatActivity() {
             val weight = binding.etWeight.text.toString()
             val password = binding.etPassword.text.toString()
 
+            // if all fields are filled
             if (checkAllFields()) {
+
+                // create a user with email and password entered in
                 auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this) { authResult ->
                     if (authResult.isSuccessful) {
                         // Successfully created user account
@@ -77,11 +96,13 @@ class SignUpActivity : AppCompatActivity() {
                                 "height" to height,
                                 "weight" to weight
                             )
+
+                            // create a users collection and fill in the user data from the hashmap
                             db.collection("users")
                                 .document(currentUser.uid)
                                 .set(userData)
                                 .addOnSuccessListener {
-                                    // Document creation successful
+                                    // Document creation successful and navigate to profile picture activity
                                     Toast.makeText(this, "Account Created Successfully", Toast.LENGTH_SHORT).show()
                                     val intent = Intent(this, ProfilePictureActivity::class.java)
                                     startActivity(intent)
@@ -102,6 +123,7 @@ class SignUpActivity : AppCompatActivity() {
             }
         }
     }
+    // function to check if all fields are filled
     private fun checkAllFields(): Boolean {
         val email = binding.etEmail.text.toString()
 
