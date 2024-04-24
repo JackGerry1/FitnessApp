@@ -94,7 +94,7 @@ class ProfilePictureActivity : AppCompatActivity() {
 
         // display the image chosen from the gallery if any
         val galleryImage =
-            registerForActivityResult(ActivityResultContracts.GetContent(), ActivityResultCallback {
+            registerForActivityResult(ActivityResultContracts.GetContent()) {
                 image.setImageURI(it)
                 if (it != null) {
                     uri = it
@@ -103,7 +103,7 @@ class ProfilePictureActivity : AppCompatActivity() {
                         .transform(CircleCrop())
                         .into(image)
                 }
-            })
+            }
 
         // launch gallery on button click
         btnGallery.setOnClickListener {

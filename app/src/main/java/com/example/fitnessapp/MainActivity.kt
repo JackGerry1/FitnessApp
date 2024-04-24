@@ -1,17 +1,21 @@
 package com.example.fitnessapp
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.fitnessapp.constants.Constants
 import com.example.fitnessapp.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import java.util.jar.Manifest
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,6 +29,9 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
         setContentView(binding.root)
+
+        navigateToWalkingActivityIfNeeded(intent)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -59,5 +66,12 @@ class MainActivity : AppCompatActivity() {
             }
             // If the user is not signed in, just stay on MainActivity
         }, 3000)
+    }
+    private fun navigateToWalkingActivityIfNeeded(intent: Intent?) {
+        if(intent?.action == Constants.ACTION_SHOW_TRACKING_FRAGMENT) {
+            val walkingActivityIntent = Intent(this, WalkingActivity::class.java)
+            startActivity(walkingActivityIntent)
+            finish() // Optionally finish the MainActivity if needed
+        }
     }
 }

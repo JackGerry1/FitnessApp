@@ -1,21 +1,29 @@
 package com.example.fitnessapp
 
+import android.Manifest
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.example.fitnessapp.constants.Constants.Companion.REQUEST_CODE_LOCATION_PERMISSION
 import com.example.fitnessapp.databinding.ActivityHomeBinding
+import com.example.fitnessapp.utilties.TrackingUtility
+
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.vmadalin.easypermissions.EasyPermissions
+import com.vmadalin.easypermissions.dialogs.SettingsDialog
 
 /*
 References:
@@ -23,7 +31,7 @@ References:
     [online] Medium. Available at: https://rizkaghina29.medium.com/android-how-to-make-circle-image-with-glide-bb0b50fbbda [Accessed 18 Apr. 2024].
 
 */
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
     // global variables for firebase and binding
     private lateinit var auth: FirebaseAuth
@@ -31,6 +39,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHomeBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestPermissions()
 
         binding = ActivityHomeBinding.inflate(layoutInflater)
 
@@ -120,4 +129,42 @@ class HomeActivity : AppCompatActivity() {
                 Log.d("HomeActivity", "Failed to get user document: $exception")
             }
     }
+
+    private fun requestPermissions() {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            EasyPermissions.requestPermissions(
+                this,
+                "You need to accept location permissions to use this app.",
+                REQUEST_CODE_LOCATION_PERMISSION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+
+
+            )
+        }
+        else {
+            EasyPermissions.requestPermissions(
+                this,
+                "You need to accept location permissions to use this app.",
+                REQUEST_CODE_LOCATION_PERMISSION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    override fun onPermissionsDenied(requestCode: Int, perms: List<String>) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            SettingsDialog.Builder(this).build().show()
+        } else {
+            requestPermissions()
+        }
+    }
+
+    override fun onPermissionsGranted(requestCode: Int, perms: List<String>) {}
+
 }

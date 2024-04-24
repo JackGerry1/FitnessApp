@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("com.google.gms.google-services")
+    alias(libs.plugins.googleAndroidLibrariesMapsplatformSecretsGradlePlugin)
 }
 
 android {
@@ -50,9 +51,16 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
+    implementation(libs.play.services.maps)
+    implementation(libs.androidx.lifecycle.service)
+    implementation(libs.play.services.appindexing)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     implementation ("com.github.bumptech.glide:glide:4.16.0")
+    implementation ("com.google.android.gms:play-services-location:21.2.0")
+    implementation ("com.vmadalin:easypermissions-ktx:1.0.0")
+    implementation ("com.google.dagger:hilt-android:2.51.1")
+    annotationProcessor ("com.google.dagger:hilt-compiler:2.51.1")
 
 }

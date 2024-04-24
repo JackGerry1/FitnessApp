@@ -6,7 +6,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.fitnessapp.databinding.ActivityWalkingBinding
 import com.example.fitnessapp.databinding.ActivityWorkoutBinding
 
 class WorkoutActivity : AppCompatActivity() {
