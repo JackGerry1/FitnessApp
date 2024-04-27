@@ -101,6 +101,19 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
             zoomToSeeWholeTrack()
             endWalkAndSaveToDb()
         }
+
+        // Bottom navigation view item selection listener
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.bottom_walk -> true
+                R.id.bottom_stats -> {
+                    startActivity(Intent(applicationContext, WalkingStatsActivity::class.java))
+                    finish()
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     private fun fetchUserWeight() {
