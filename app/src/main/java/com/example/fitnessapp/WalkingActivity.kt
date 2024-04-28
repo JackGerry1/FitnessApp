@@ -159,7 +159,9 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun stopWalk() {
         sendCommandToService(ACTION_STOP_SERVICE)
-        goToHomeActivity()
+        val intent = Intent(this, WalkingStatsActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     private fun subscribeToObservers() {
@@ -286,12 +288,17 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         val avgSpeed = calculateAverageSpeed(distanceInMeters)
         val dateTimestamp = Calendar.getInstance().timeInMillis
         val caloriesBurned = calculateCaloriesBurnedWalking(distanceInMeters, weight, avgSpeed)
-        val distanceInKM = distanceInMeters / 1000f
+
+
+        // Format the data to two decimal places
+        val formattedAvgSpeed = "%.2f".format(avgSpeed)
+        val formattedDistanceInKM = "%.2f".format(distanceInMeters / 1000.0) // Assuming distanceInMeters is in meters
+
 
         val walkData = hashMapOf(
             "date_timestamp" to dateTimestamp,
-            "avg_speed" to avgSpeed,
-            "distance_in_KM" to distanceInKM,
+            "avg_speed" to formattedAvgSpeed,
+            "distance_in_KM" to formattedDistanceInKM,
             "duration_in_millis" to currentTimeMillis,
             "calories_burned" to caloriesBurned,
             "image_url" to imageUrl // Add the image URL to the walk data

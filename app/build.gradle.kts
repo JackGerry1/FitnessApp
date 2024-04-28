@@ -62,5 +62,7 @@ dependencies {
     implementation ("com.vmadalin:easypermissions-ktx:1.0.0")
     implementation ("com.google.dagger:hilt-android:2.51.1")
     annotationProcessor ("com.google.dagger:hilt-compiler:2.51.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
 
 }
