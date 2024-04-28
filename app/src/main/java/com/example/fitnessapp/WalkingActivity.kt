@@ -286,11 +286,12 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         val avgSpeed = calculateAverageSpeed(distanceInMeters)
         val dateTimestamp = Calendar.getInstance().timeInMillis
         val caloriesBurned = calculateCaloriesBurnedWalking(distanceInMeters, weight, avgSpeed)
+        val distanceInKM = distanceInMeters / 1000f
 
         val walkData = hashMapOf(
             "date_timestamp" to dateTimestamp,
             "avg_speed" to avgSpeed,
-            "distance_in_meters" to distanceInMeters,
+            "distance_in_KM" to distanceInKM,
             "duration_in_millis" to currentTimeMillis,
             "calories_burned" to caloriesBurned,
             "image_url" to imageUrl // Add the image URL to the walk data
@@ -301,12 +302,10 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
             val userDocument = db.collection("walking").document(userId)
             val documentId = dateTimestamp.toString() // Use date timestamp as document ID
 
-            val userData = hashMapOf(
-                documentId to walkData
-            )
-
             userDocument
-                .set(userData,  SetOptions.merge()) // Merge with existing data
+                .collection("walks") // No need for this subcollection
+                .document(documentId) // Set document ID
+                .set(walkData)
                 .addOnSuccessListener {
                     Log.d("Successfully Uploaded Walk Data", "DocumentSnapshot added with ID: $documentId")
                     Toast.makeText(
@@ -326,8 +325,6 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
         }
     }
-
-
 
     private fun calculateTotalDistance(): Float {
         var distanceInMeters = 0f
