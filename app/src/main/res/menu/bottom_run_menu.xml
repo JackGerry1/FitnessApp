@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/bottom_walk"
-        android:icon="@drawable/baseline_directions_walk_24"
+        android:id="@+id/bottom_run"
+        android:icon="@drawable/baseline_directions_run_24"
         android:title="Home" />
     <item
-        android:id="@+id/bottom_stats"
+        android:id="@+id/bottom_run_stats"
         android:icon="@drawable/baseline_bar_chart_24"
         android:title="Search" />
 </menu>

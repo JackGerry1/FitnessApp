@@ -37,6 +37,7 @@ class HomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private lateinit var binding: ActivityHomeBinding
+    private var permissionsAlreadyDenied = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestPermissions()
@@ -129,30 +130,24 @@ class HomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                 Log.d("HomeActivity", "Failed to get user document: $exception")
             }
     }
-
+    // TODO: fix when user denies permissions then presses cancel on the next dialog that it get stuck in infinite loop
     private fun requestPermissions() {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            EasyPermissions.requestPermissions(
-                this,
-                "You need to accept location permissions to use this app.",
-                REQUEST_CODE_LOCATION_PERMISSION,
-                Manifest.permission.ACCESS_FINE_LOCATION
 
+        EasyPermissions.requestPermissions(
+            this,
+            "You need to accept location permissions to use this app.",
+            REQUEST_CODE_LOCATION_PERMISSION,
+            Manifest.permission.ACCESS_FINE_LOCATION
 
-            )
-        }
-        else {
-            EasyPermissions.requestPermissions(
-                this,
-                "You need to accept location permissions to use this app.",
-                REQUEST_CODE_LOCATION_PERMISSION,
-                Manifest.permission.ACCESS_FINE_LOCATION
+        )
 
-            )
-        }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }

@@ -5,14 +5,14 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".WalkingStatsActivity">
+    tools:context=".RunningStatsActivity">
 
     <TextView
         android:id="@+id/textWalkStatsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Walking Stats Page"
+        android:text="Running Stats Page"
         android:textSize="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,8 +49,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
-        app:menu="@menu/bottom_walk_menu"
+        app:menu="@menu/bottom_run_menu"
         tools:layout_editor_absoluteX="0dp" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

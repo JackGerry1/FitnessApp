@@ -8,15 +8,15 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.fitnessapp.R
-import com.example.fitnessapp.constants.WalkData
+import com.example.fitnessapp.constants.ActivityData
 import com.example.fitnessapp.utilties.TrackingUtility
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class WalkAdapter(private val walkDataList: List<WalkData>) : RecyclerView.Adapter<WalkAdapter.WalkViewHolder>() {
+class ActivityAdapter(private val activityDataList: List<ActivityData>) : RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>() {
 
-    inner class WalkViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ActivityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val dateTextView: TextView = itemView.findViewById(R.id.textDate)
         val avgSpeedTextView: TextView = itemView.findViewById(R.id.textAvgSpeed)
         val distanceTextView: TextView = itemView.findViewById(R.id.textDistance)
@@ -25,16 +25,16 @@ class WalkAdapter(private val walkDataList: List<WalkData>) : RecyclerView.Adapt
         val imageView: ImageView = itemView.findViewById(R.id.imgWalk)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WalkViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivityViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_walk, parent, false)
-        return WalkViewHolder(itemView)
+        return ActivityViewHolder(itemView)
     }
 
-    override fun onBindViewHolder(holder: WalkViewHolder, position: Int) {
-        val walkData = walkDataList[position]
+    override fun onBindViewHolder(holder: ActivityViewHolder, position: Int) {
+        val activityData = activityDataList[position]
 
-        val formattedDuration = TrackingUtility.getFormattedStopWatchTime(walkData.durationInMillis!!, true)
-        val dateTimestamp = walkData.dateTimestamp
+        val formattedDuration = TrackingUtility.getFormattedStopWatchTime(activityData.durationInMillis!!, true)
+        val dateTimestamp = activityData.dateTimestamp
         val dateFormat = SimpleDateFormat("HH:mm:ss dd-MM-yyyy", Locale.getDefault())
         val formattedDate = if (dateTimestamp != null) {
             dateFormat.format(Date(dateTimestamp))
@@ -43,11 +43,11 @@ class WalkAdapter(private val walkDataList: List<WalkData>) : RecyclerView.Adapt
         }
 
         holder.dateTextView.text = "Date: $formattedDate"
-        holder.avgSpeedTextView.text = "Average Speed: ${walkData.avgSpeed ?: "N/A"} km/h"
-        holder.distanceTextView.text = "Distance: ${walkData.distanceInKM ?: "N/A"} kilometers"
+        holder.avgSpeedTextView.text = "Average Speed: ${activityData.avgSpeed ?: "N/A"} km/h"
+        holder.distanceTextView.text = "Distance: ${activityData.distanceInKM ?: "N/A"} kilometers"
         holder.durationTextView.text = "Duration: ${formattedDuration ?: "N/A"}"
-        holder.caloriesTextView.text = "Calories Burned: ${walkData.caloriesBurned ?: "N/A"}"
-        walkData.imageUrl?.let {
+        holder.caloriesTextView.text = "Calories Burned: ${activityData.caloriesBurned ?: "N/A"}"
+        activityData.imageUrl?.let {
             Glide.with(holder.imageView.context)
                 .load(it)
                 .into(holder.imageView)
@@ -55,6 +55,6 @@ class WalkAdapter(private val walkDataList: List<WalkData>) : RecyclerView.Adapt
     }
 
     override fun getItemCount(): Int {
-        return walkDataList.size
+        return activityDataList.size
     }
 }

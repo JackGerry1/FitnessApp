@@ -106,7 +106,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.bottom_walk -> true
-                R.id.bottom_stats -> {
+                R.id.bottom_walk_stats -> {
                     startActivity(Intent(applicationContext, WalkingStatsActivity::class.java))
                     finish()
                     true
@@ -134,12 +134,10 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun toggleWalk() {
         if (isTracking) {
-            Log.d("Toggle Run", "Pause Service")
             menu?.getItem(0)?.isVisible = true
             sendCommandToService(ACTION_PAUSE_SERVICE)
         } else {
             sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
-            Log.d("Toggle Run", "Start Service/Resume Service")
         }
     }
 

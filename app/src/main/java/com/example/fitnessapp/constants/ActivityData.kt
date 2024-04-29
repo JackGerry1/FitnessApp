@@ -1,6 +1,6 @@
 package com.example.fitnessapp.constants
 
-data class WalkData(
+data class ActivityData(
     val dateTimestamp: Long? = null,
     val avgSpeed: String? = null,
     val distanceInKM: String? = null,

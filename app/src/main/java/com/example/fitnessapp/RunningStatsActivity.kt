@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fitnessapp.adapters.ActivityAdapter
 import com.example.fitnessapp.constants.ActivityData
-import com.example.fitnessapp.databinding.ActivityWalkingStatsBinding
+import com.example.fitnessapp.databinding.ActivityRunningStatsBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -15,42 +15,38 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-class WalkingStatsActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivityWalkingStatsBinding
+class RunningStatsActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityRunningStatsBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
-    private lateinit var walkDataList: MutableList<ActivityData>
-    private lateinit var walkAdapter: ActivityAdapter
+    private lateinit var runDataList: MutableList<ActivityData>
+    private lateinit var runAdapter: ActivityAdapter
     private var currentUser = FirebaseAuth.getInstance().currentUser
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityWalkingStatsBinding.inflate(layoutInflater)
+
+        binding = ActivityRunningStatsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        walkDataList = mutableListOf()
-        walkAdapter = ActivityAdapter(walkDataList)
-        binding.recyclerView.adapter = walkAdapter
+        runDataList = mutableListOf()
+        runAdapter = ActivityAdapter(runDataList)
+        binding.recyclerView.adapter = runAdapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
-
 
 
         // initialise firebase auth and firestore
         auth = Firebase.auth
         firestore = Firebase.firestore
 
-
-
         // highlight stats icon
-        binding.bottomNavigation.selectedItemId = R.id.bottom_walk_stats
+        binding.bottomNavigation.selectedItemId = R.id.bottom_run_stats
 
         // Bottom navigation view item selection listener
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.bottom_walk_stats -> true
-                R.id.bottom_walk -> {
-                    startActivity(Intent(applicationContext, WalkingActivity::class.java))
+                R.id.bottom_run_stats -> true
+                R.id.bottom_run -> {
+                    startActivity(Intent(applicationContext, RunningActivity::class.java))
                     finish()
                     true
                 }
@@ -62,23 +58,18 @@ class WalkingStatsActivity : AppCompatActivity() {
             goToHomeActivity()
         }
 
-        // Fetch walk data from Firestore
-        fetchWalkData()
+
+        // Fetch run data from Firestore
+        fetchRunData()
     }
 
-    private fun goToHomeActivity() {
-        val intent = Intent(this, HomeActivity::class.java)
-        startActivity(intent)
-        finish()
-    }
-
-    private fun fetchWalkData() {
-        val walkingRef = firestore.collection("walking").document(currentUser!!.uid).collection("walks")
-        val query = walkingRef.orderBy("date_timestamp", Query.Direction.DESCENDING)
+    private fun fetchRunData() {
+        val runningRef = firestore.collection("running").document(currentUser!!.uid).collection("runs")
+        val query = runningRef.orderBy("date_timestamp", Query.Direction.DESCENDING)
 
         query.get()
             .addOnSuccessListener { documents ->
-                walkDataList.clear()
+                runDataList.clear()
                 for (document in documents) {
                     val dateTimestamp = document.getLong("date_timestamp")
                     val avgSpeed = document.getString("avg_speed")
@@ -87,7 +78,7 @@ class WalkingStatsActivity : AppCompatActivity() {
                     val caloriesBurned = document.getLong("calories_burned")
                     val imageUrl = document.getString("image_url")
 
-                    val walkData = ActivityData(
+                    val runData = ActivityData(
                         dateTimestamp = dateTimestamp,
                         avgSpeed = avgSpeed,
                         distanceInKM = distanceInKM,
@@ -95,13 +86,18 @@ class WalkingStatsActivity : AppCompatActivity() {
                         caloriesBurned = caloriesBurned,
                         imageUrl = imageUrl
                     )
-                    walkDataList.add(walkData)
+                    runDataList.add(runData)
                 }
-                walkAdapter.notifyDataSetChanged()
+                runAdapter.notifyDataSetChanged()
             }
             .addOnFailureListener { exception ->
-                Log.d("WalkingStatsActivity", "Failed to get walking documents: $exception")
+                Log.d("RunningStatsActivity", "Failed to get running documents: $exception")
             }
     }
 
+    private fun goToHomeActivity() {
+        val intent = Intent(this, HomeActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
 }
