@@ -17,6 +17,7 @@ import com.example.fitnessapp.databinding.ActivityWalkingStatsBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -62,15 +63,26 @@ class WalkingStatsActivity : AppCompatActivity() {
                 else -> false
             }
         }
+
+        binding.imgBack.setOnClickListener {
+            goToHomeActivity()
+        }
+
         // Fetch walk data from Firestore
         fetchWalkData()
     }
 
-    // TODO: order this by the most recently added walk, so the most recent walk
-    // is at the top of the stats page
+    private fun goToHomeActivity() {
+        val intent = Intent(this, HomeActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
     private fun fetchWalkData() {
         val walkingRef = firestore.collection("walking").document(currentUser!!.uid).collection("walks")
-        walkingRef.get()
+        val query = walkingRef.orderBy("date_timestamp", Query.Direction.DESCENDING)
+
+        query.get()
             .addOnSuccessListener { documents ->
                 walkDataList.clear()
                 for (document in documents) {
@@ -97,4 +109,5 @@ class WalkingStatsActivity : AppCompatActivity() {
                 Log.d("WalkingStatsActivity", "Failed to get walking documents: $exception")
             }
     }
+
 }

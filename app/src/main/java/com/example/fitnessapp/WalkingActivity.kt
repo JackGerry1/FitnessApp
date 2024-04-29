@@ -111,6 +111,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
                     finish()
                     true
                 }
+
                 else -> false
             }
         }
@@ -158,6 +159,15 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun stopWalk() {
+        binding.textTimer.text = "00:00:00:00"
+        sendCommandToService(ACTION_STOP_SERVICE)
+        val intent = Intent(this, HomeActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun finishWalk() {
+        binding.textTimer.text = "00:00:00:00"
         sendCommandToService(ACTION_STOP_SERVICE)
         val intent = Intent(this, WalkingStatsActivity::class.java)
         startActivity(intent)
@@ -177,7 +187,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
 
         }
 
-        TrackingService.timeWalkInMillis.observe(this) {
+        TrackingService.timeActivityInMillis.observe(this) {
             currentTimeMillis = it
 
             // include the milliseconds
@@ -194,16 +204,19 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun updateTracking(isTracking: Boolean) {
         this.isTracking = isTracking
-        if (!isTracking) {
+        if (!isTracking && currentTimeMillis > 0L) {
             binding.btnToggleWalk.text = "Start"
             binding.btnFinishWalk.visibility = View.VISIBLE
+
             // Hide cancel button when not tracking
             binding.imgCancelWalk.visibility = View.INVISIBLE
-        } else {
+        } else if (isTracking) {
             binding.btnToggleWalk.text = "Stop"
             binding.btnFinishWalk.visibility = View.GONE
+
             // Show cancel button when tracking
             binding.imgCancelWalk.visibility = View.VISIBLE
+
             // Set click listener for cancel button
             binding.imgCancelWalk.setOnClickListener {
                 showCancelTrackingDialog()
@@ -292,7 +305,8 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Format the data to two decimal places
         val formattedAvgSpeed = "%.2f".format(avgSpeed)
-        val formattedDistanceInKM = "%.2f".format(distanceInMeters / 1000.0) // Assuming distanceInMeters is in meters
+        val formattedDistanceInKM =
+            "%.2f".format(distanceInMeters / 1000.0) // Assuming distanceInMeters is in meters
 
 
         val walkData = hashMapOf(
@@ -314,13 +328,16 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
                 .document(documentId) // Set document ID
                 .set(walkData)
                 .addOnSuccessListener {
-                    Log.d("Successfully Uploaded Walk Data", "DocumentSnapshot added with ID: $documentId")
+                    Log.d(
+                        "Successfully Uploaded Walk Data",
+                        "DocumentSnapshot added with ID: $documentId"
+                    )
                     Toast.makeText(
                         applicationContext,
                         "Walk saved successfully",
                         Toast.LENGTH_LONG
                     ).show()
-                    stopWalk()
+                    finishWalk()
                 }
                 .addOnFailureListener { e ->
                     Log.w("Failed Uploading Walk Data", "Error adding document", e)

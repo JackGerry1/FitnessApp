@@ -62,13 +62,13 @@ typealias Polylines = MutableList<Polyline>
 
 @AndroidEntryPoint
 class TrackingService : LifecycleService() {
-    private var isFirstWalk = true
+    private var isFirstActivity = true
     private var serviceKilled = false
 
     @Inject
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
-    private val timeWalkInSeconds = MutableLiveData<Long>()
+    private val timeActivityInSeconds = MutableLiveData<Long>()
 
     @Inject
     private lateinit var baseNotificationBuilder: NotificationCompat.Builder
@@ -77,7 +77,7 @@ class TrackingService : LifecycleService() {
     private lateinit var currentNotificationBuilder: NotificationCompat.Builder
 
     companion object {
-        val timeWalkInMillis = MutableLiveData<Long>()
+        val timeActivityInMillis = MutableLiveData<Long>()
         val isTracking = MutableLiveData<Boolean>()
         val pathPoints = MutableLiveData<Polylines>()
 
@@ -86,8 +86,8 @@ class TrackingService : LifecycleService() {
     private fun postInitialValues() {
         isTracking.postValue(false)
         pathPoints.postValue(mutableListOf())
-        timeWalkInSeconds.postValue(0L)
-        timeWalkInMillis.postValue(0L)
+        timeActivityInSeconds.postValue(0L)
+        timeActivityInMillis.postValue(0L)
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -116,10 +116,10 @@ class TrackingService : LifecycleService() {
         return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setAutoCancel(false)
             .setOngoing(true)
-            .setSmallIcon(R.drawable.baseline_directions_run_24)
-            .setContentTitle("Running App")
+            .setSmallIcon(R.drawable.baseline_directions_walk_24)
+            .setContentTitle("Fitness App")
             .setContentText("00:00")
-            .setContentIntent(getWalkingActivityPendingIntent())
+            .setContentIntent(getActivityPendingIntent())
     }
 
 
@@ -158,10 +158,10 @@ class TrackingService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START_OR_RESUME_SERVICE -> {
-                if (isFirstWalk) {
+                if (isFirstActivity) {
                     start()
                     Log.d("TrackingService", "Starting Service")
-                    isFirstWalk = false
+                    isFirstActivity = false
                 } else {
                     Log.d("TrackingService", "Resuming Service")
                     startTimer()
@@ -187,7 +187,7 @@ class TrackingService : LifecycleService() {
 
     private var isTimerEnabled = false
     private var lapTime = 0L
-    private var timeWalk = 0L
+    private var timeActivity = 0L
     private var timeStarted = 0L
     private var lastSecondTimeStamp = 0L
 
@@ -202,22 +202,22 @@ class TrackingService : LifecycleService() {
                 lapTime = System.currentTimeMillis() - timeStarted
 
                 // Post new lap time
-                timeWalkInMillis.postValue(timeWalk + lapTime)
+                timeActivityInMillis.postValue(timeActivity + lapTime)
 
                 // check if a new whole second has passed before updating the stopwatch
-                if (timeWalkInMillis.value!! >= lastSecondTimeStamp + 1000L) {
-                    timeWalkInSeconds.postValue(timeWalkInSeconds.value!! + 1)
+                if (timeActivityInMillis.value!! >= lastSecondTimeStamp + 1000L) {
+                    timeActivityInSeconds.postValue(timeActivityInSeconds.value!! + 1)
                     lastSecondTimeStamp += 1000L
                 }
                 delay(TIMER_UPDATE_INTERVAL)
             }
-            timeWalk += lapTime
+            timeActivity += lapTime
         }
     }
 
     private fun killService() {
         serviceKilled = true
-        isFirstWalk = true
+        isFirstActivity = true
         pauseService()
         postInitialValues()
         stopForeground(STOP_FOREGROUND_DETACH)
@@ -290,7 +290,7 @@ class TrackingService : LifecycleService() {
         }
         startForeground(NOTIFICATION_ID, baseNotificationBuilder.build())
 
-        timeWalkInSeconds.observe(this) {
+        timeActivityInSeconds.observe(this) {
             if (!serviceKilled) {
                 val notification = currentNotificationBuilder
                     .setContentText(TrackingUtility.getFormattedStopWatchTime(it * 1000L, false))
@@ -300,7 +300,7 @@ class TrackingService : LifecycleService() {
         }
     }
 
-    private fun getWalkingActivityPendingIntent() = PendingIntent.getActivity(
+    private fun getActivityPendingIntent() = PendingIntent.getActivity(
         this,
         0,
         Intent(this, WalkingActivity::class.java).apply {
