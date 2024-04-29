@@ -130,7 +130,8 @@ class HomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
                 Log.d("HomeActivity", "Failed to get user document: $exception")
             }
     }
-    // TODO: fix when user denies permissions then presses cancel on the next dialog that it get stuck in infinite loop
+
+    // request location permissions from the user
     private fun requestPermissions() {
 
         EasyPermissions.requestPermissions(
@@ -143,6 +144,7 @@ class HomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
     }
 
+    // get result of the location request permission
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -152,14 +154,14 @@ class HomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
+    // if denied show a popup saying the importance of accepting the location permissions
     override fun onPermissionsDenied(requestCode: Int, perms: List<String>) {
         if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
             SettingsDialog.Builder(this).build().show()
-        } else {
-            requestPermissions()
         }
     }
 
+    // if the permissions are granted just close the notification
     override fun onPermissionsGranted(requestCode: Int, perms: List<String>) {}
 
 }

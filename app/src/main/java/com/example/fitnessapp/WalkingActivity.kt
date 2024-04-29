@@ -54,12 +54,15 @@ import kotlin.math.round
 
 class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    // global variables for binding, google maps, firebase
     private lateinit var mMap: GoogleMap
     private lateinit var binding: ActivityWalkingBinding
     private lateinit var auth: FirebaseAuth
     private var storageRef = Firebase.storage
     private var db = FirebaseFirestore.getInstance()
     private var currentUser = FirebaseAuth.getInstance().currentUser
+
+    // global variables for tracking state, pathPoints, time, user weight, and bottom navigation menu
     private var isTracking = false
     private var pathPoints = mutableListOf<Polyline>()
     private var currentTimeMillis = 0L
@@ -69,6 +72,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // if your device has the a recent api version request the POST_NOTIFICATIONS
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ActivityCompat.requestPermissions(
                 this,
@@ -85,18 +89,25 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+
+        // initiliase firebase auth and cloud storage
         auth = Firebase.auth
         storageRef = FirebaseStorage.getInstance()
 
+
         fetchUserWeight()
 
+        // button to get back to homepage
         binding.imgBack.setOnClickListener {
             goToHomeActivity()
         }
+
+        // button to start/stop a walk
         binding.btnToggleWalk.setOnClickListener {
             toggleWalk()
         }
 
+        // button to finish the walk
         binding.btnFinishWalk.setOnClickListener {
             zoomToSeeWholeTrack()
             endWalkAndSaveToDb()
@@ -105,7 +116,10 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         // Bottom navigation view item selection listener
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
+                // if walk stay on the same page because you are already here
                 R.id.bottom_walk -> true
+
+                // if clicking on the stats navigate to the stats page
                 R.id.bottom_walk_stats -> {
                     startActivity(Intent(applicationContext, WalkingStatsActivity::class.java))
                     finish()
@@ -117,31 +131,40 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // obtain the current users weight from firestore
     private fun fetchUserWeight() {
 
+        // get the current user document
         val weightRef = db.collection("users").document(currentUser!!.uid)
         weightRef.get()
             .addOnSuccessListener { documentSnapshot ->
+                // obtain weight and reassign to the global variable
                 val userWeight = documentSnapshot.getString("weight")
                 weight = userWeight!!.toFloat()
 
             }
+            // error if weight cannot be obtained, this is unlikely
             .addOnFailureListener { e ->
                 Log.e("Users Weight ERROR", e.toString())
             }
     }
 
-
+    // function to toggle the walk and its coresponding service
     private fun toggleWalk() {
+        // if is tracking meaning that the user is currently walking, the stop button will pause the service
         if (isTracking) {
             menu?.getItem(0)?.isVisible = true
             sendCommandToService(ACTION_PAUSE_SERVICE)
         } else {
+            // else the user needs to start/resume the service
             sendCommandToService(ACTION_START_OR_RESUME_SERVICE)
         }
     }
 
+    // on the top right when the user starts a walk, they can click this to cancel it
     private fun showCancelTrackingDialog() {
+
+        // basic dialog allowing users to cancel their current walk or resume if accidently pressed it.
         val dialog = MaterialAlertDialogBuilder(this)
             .setTitle("Cancel Walk?")
             .setMessage("Are you sure you want to cancel the current walk and delete all of its data?")
@@ -156,6 +179,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         dialog.show()
     }
 
+    // stop walk function, will reset the timer to zero, stop the service and navigate users to the homepage
     private fun stopWalk() {
         binding.textTimer.text = "00:00:00:00"
         sendCommandToService(ACTION_STOP_SERVICE)
@@ -163,7 +187,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         startActivity(intent)
         finish()
     }
-
+    // finish walk function, will reset the timer to zero, stop the service and navigate users to the walking stats activity
     private fun finishWalk() {
         binding.textTimer.text = "00:00:00:00"
         sendCommandToService(ACTION_STOP_SERVICE)
@@ -172,12 +196,16 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         finish()
     }
 
+    // observe the status of the user walk
     private fun subscribeToObservers() {
+
+        // keep track of the buttons when the user is walking
         TrackingService.isTracking.observe(this) {
             updateTracking(it)
             invalidateOptionsMenu()
         }
 
+        // add the latest polylines (lines representing where the user walked) to the screen, whilst the camera follows them
         TrackingService.pathPoints.observe(this) {
             pathPoints = it
             addLatestPolyline()
@@ -185,6 +213,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
 
         }
 
+        // update the text timer including the milliseconds.
         TrackingService.timeActivityInMillis.observe(this) {
             currentTimeMillis = it
 
@@ -194,14 +223,18 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // function to navigate to the homeactivity
     private fun goToHomeActivity() {
         val intent = Intent(this, HomeActivity::class.java)
         startActivity(intent)
         finish()
     }
 
+    // function to manage what buttons and text are shown while the user is walking
     private fun updateTracking(isTracking: Boolean) {
         this.isTracking = isTracking
+
+        // if the user is not walking, only show the start button
         if (!isTracking && currentTimeMillis > 0L) {
             binding.btnToggleWalk.text = "Start"
             binding.btnFinishWalk.visibility = View.VISIBLE
@@ -209,6 +242,8 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
             // Hide cancel button when not tracking
             binding.imgCancelWalk.visibility = View.INVISIBLE
         } else if (isTracking) {
+
+            // if the user is walking replace the start button with a stop button
             binding.btnToggleWalk.text = "Stop"
             binding.btnFinishWalk.visibility = View.GONE
 
@@ -222,18 +257,24 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // when the walk has finished zoom so that you can only see the route taken
     private fun zoomToSeeWholeTrack() {
+
+        // take the bounds of the google maps
         val bounds = LatLngBounds.Builder()
 
+        // go through all of the polylines drawn and get their lat and lng
         for (polyline in pathPoints) {
             for (pos in polyline) {
                 bounds.include(pos)
             }
         }
 
+        // get the mapFragment and mapView
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         val mapView = mapFragment.view as View
 
+        // move the camera to the bounds to prepare to get that image that will be stored in firestore
         mMap.moveCamera(
             CameraUpdateFactory.newLatLngBounds(
                 bounds.build(),
@@ -244,7 +285,9 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         )
     }
 
+    // save image of map and put it into cloud firestore
     private fun endWalkAndSaveToDb() {
+        // take screenshot of map
         mMap.snapshot { bmp ->
             // Save the snapshot to a temporary file
             val imageFile = createImageFile()
@@ -273,7 +316,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
                     // Save walk data along with image URL to Firestore
                     saveWalkDataToFirestore(downloadUri.toString())
                 } else {
-                    // Handle failure
+                    // if failed to image uri
                     Log.e("endWalkAndSaveToDb ERROR", "Upload failed: ${task.exception}")
                 }
             }
@@ -282,61 +325,70 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    // saveWalkDataToFirestore stores data in the format:
-    /*
-    walking
-        |_ userID
-            |_ documentId
-                |_ date_timestamp: <value>
-                |_ avg_speed: <value>
-                |_ distance_in_meters: <value>
-                |_ duration_in_millis: <value>
-                |_ calories_burned: <value>
-                |_ image_url: <value>
-    */
+    // save walk data with image to firestore
     private fun saveWalkDataToFirestore(imageUrl: String) {
+        // get walk stats using helper functions
         val distanceInMeters = calculateTotalDistance()
         val avgSpeed = calculateAverageSpeed(distanceInMeters)
         val dateTimestamp = Calendar.getInstance().timeInMillis
         val caloriesBurned = calculateCaloriesBurnedWalking(distanceInMeters, weight, avgSpeed)
 
 
-        // Format the data to two decimal places
+        // Format the avgsped and distance to two decimal places
         val formattedAvgSpeed = "%.2f".format(avgSpeed)
         val formattedDistanceInKM =
-            "%.2f".format(distanceInMeters / 1000.0) // Assuming distanceInMeters is in meters
+            "%.2f".format(distanceInMeters / 1000.0)
 
-
+        // set hashmap of stored data
         val walkData = hashMapOf(
             "date_timestamp" to dateTimestamp,
             "avg_speed" to formattedAvgSpeed,
             "distance_in_KM" to formattedDistanceInKM,
             "duration_in_millis" to currentTimeMillis,
             "calories_burned" to caloriesBurned,
-            "image_url" to imageUrl // Add the image URL to the walk data
+            "image_url" to imageUrl // link to the image cloud storage
         )
 
+
+        // the below code stores the data like this:
+        /*
+        * structure data like this
+        * walking
+        *   userUID
+        *       walks
+        *       documentID
+        *               date_timestamp
+        *               avg_speed
+        *               distance_in_KM
+        *               duration_in_millis
+        *               calories_burned
+        *               image_url
+        * */
         currentUser?.uid?.let { userId ->
+
+            // create initial collections and documentID
             val db = FirebaseFirestore.getInstance()
             val userDocument = db.collection("walking").document(userId)
-            val documentId = dateTimestamp.toString() // Use date timestamp as document ID
+            val documentId = dateTimestamp.toString()
 
+            // create walks subcollection and various documentIDs
             userDocument
-                .collection("walks") // No need for this subcollection
-                .document(documentId) // Set document ID
+                .collection("walks")
+                .document(documentId)
                 .set(walkData)
+
+                // succesfully uploaded data
                 .addOnSuccessListener {
-                    Log.d(
-                        "Successfully Uploaded Walk Data",
-                        "DocumentSnapshot added with ID: $documentId"
-                    )
                     Toast.makeText(
                         applicationContext,
                         "Walk saved successfully",
                         Toast.LENGTH_LONG
                     ).show()
+                    // finish the walk, so that users go their stats page
                     finishWalk()
                 }
+
+                // catch any error uploading data
                 .addOnFailureListener { e ->
                     Log.w("Failed Uploading Walk Data", "Error adding document", e)
                     Toast.makeText(
@@ -348,7 +400,10 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // helper function to calculate total distance
     private fun calculateTotalDistance(): Float {
+
+        // loop through each polyline and adds it length using the tracking utility and return the result
         var distanceInMeters = 0f
         for (polyline in pathPoints) {
             distanceInMeters += TrackingUtility.calculatePolylineLength(polyline)
@@ -356,12 +411,17 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         return distanceInMeters
     }
 
+    // calculate average speed in KM/H
     private fun calculateAverageSpeed(distanceInMeters: Float): Float {
         val distanceInKilometers = distanceInMeters / 1000f
+
+        // convert milliseconds to hours
         val timeInHours = currentTimeMillis / 1000f / 60 / 60
+
         return distanceInKilometers / timeInHours
     }
 
+    // estimate calories burned walking
     private fun calculateCaloriesBurnedWalking(
         distanceInMeters: Float,
         weight: Float,
@@ -372,18 +432,23 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         // Average MET (Metabolic Equivalent of Task) for walking is approximately 3.5 METs
         val metValueWalking = 3.5f
 
+        // figure out the time spent walking
         val timeInHours = distanceInMeters / avgSpeed
 
+        // return calories estimated result
         return (metValueWalking * weight * timeInHours).toInt()
     }
 
+    // create an image file for the map screenshot
     private fun createImageFile(): File {
         val imageFileName = System.currentTimeMillis().toString()
         val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(imageFileName, ".png", storageDir)
     }
 
+    // function to zoom in/out onto the whole route
     private fun moveCameraToUser() {
+        // move the map camera zoom to encompass the users whole route
         if (pathPoints.isNotEmpty() && pathPoints.last().isNotEmpty()) {
             mMap.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(
@@ -394,39 +459,53 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    // for every update of movement draw polylines on the map
     private fun addAllPolylines() {
+
+        // go through all of the path points and draw a polyine
         for (polyline in pathPoints) {
             val polylineOptions = PolylineOptions()
                 .color(POLYLINE_COLOR)
                 .width(POLYLINE_WIDTH)
                 .addAll(polyline)
 
+            // add polylines to the map
             mMap.addPolyline(polylineOptions)
         }
     }
 
+    // function to add the most latest polyline to the map
     private fun addLatestPolyline() {
+
+        // check if a new polyline needs to be drawn based on the most recent path points
         if (this::mMap.isInitialized && pathPoints.isNotEmpty() && pathPoints.last().size > 1) {
             val preLastLatLng = pathPoints.last()[pathPoints.last().size - 2]
             val lastLatLng =
                 pathPoints.last().last() // last coordinate of the last polyline retrieved
+
+            // draw the most recent polyline
             val polylineOptions = PolylineOptions()
                 .color(POLYLINE_COLOR)
                 .width(POLYLINE_WIDTH)
                 .add(preLastLatLng)
                 .add(lastLatLng)
 
+            // add polyine to the map
             mMap.addPolyline(polylineOptions)
         }
     }
 
+    // function to sendCommandToService
     private fun sendCommandToService(action: String) {
+
+        // take what every the current service is and send it to the tracking service class
         Intent(applicationContext, TrackingService::class.java).also {
             it.action = action
             startService(it)
         }
     }
 
+    // initilise the google maps will all of the polylines and subscribetoObservers
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         addAllPolylines()

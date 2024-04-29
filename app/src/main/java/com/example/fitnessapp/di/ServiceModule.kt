@@ -22,6 +22,7 @@ import dagger.hilt.android.scopes.ServiceScoped
 @InstallIn(ServiceComponent::class)
 object ServiceModule {
 
+    // depenendcy injection to give the current location of the user
     @ServiceScoped
     @Provides
     fun provideFusedLocationProviderClient(
@@ -30,6 +31,7 @@ object ServiceModule {
         return LocationServices.getFusedLocationProviderClient(app)
     }
 
+    // gives a basic notification template so that this code doesn't have to be written multiple times.
     @ServiceScoped
     @Provides
     fun provideBaseNotificationBuilder(
