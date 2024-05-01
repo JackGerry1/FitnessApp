@@ -314,6 +314,9 @@ class TrackingService : LifecycleService() {
                     }
                 }
             }
+            else {
+                Log.d("No Location", "Cant find lat and lng")
+            }
         }
     }
 

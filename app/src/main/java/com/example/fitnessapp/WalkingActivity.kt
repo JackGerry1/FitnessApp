@@ -86,7 +86,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+            .findFragmentById(R.id.mapWalk) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
 
@@ -181,7 +181,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // stop walk function, will reset the timer to zero, stop the service and navigate users to the homepage
     private fun stopWalk() {
-        binding.textTimer.text = "00:00:00:00"
+        binding.textTimerWalk.text = "00:00:00:00"
         sendCommandToService(ACTION_STOP_SERVICE)
         val intent = Intent(this, HomeActivity::class.java)
         startActivity(intent)
@@ -189,7 +189,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
     }
     // finish walk function, will reset the timer to zero, stop the service and navigate users to the walking stats activity
     private fun finishWalk() {
-        binding.textTimer.text = "00:00:00:00"
+        binding.textTimerWalk.text = "00:00:00:00"
         sendCommandToService(ACTION_STOP_SERVICE)
         val intent = Intent(this, WalkingStatsActivity::class.java)
         startActivity(intent)
@@ -219,7 +219,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
 
             // include the milliseconds
             val formattedTime = TrackingUtility.getFormattedStopWatchTime(currentTimeMillis, true)
-            binding.textTimer.text = formattedTime
+            binding.textTimerWalk.text = formattedTime
         }
     }
 
@@ -271,7 +271,7 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // get the mapFragment and mapView
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.mapWalk) as SupportMapFragment
         val mapView = mapFragment.view as View
 
         // move the camera to the bounds to prepare to get that image that will be stored in firestore
@@ -327,11 +327,13 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // save walk data with image to firestore
     private fun saveWalkDataToFirestore(imageUrl: String) {
+
+        val timeInSeconds = currentTimeMillis / 1000
         // get walk stats using helper functions
         val distanceInMeters = calculateTotalDistance()
-        val avgSpeed = calculateAverageSpeed(distanceInMeters)
+        val avgSpeed = calculateAverageSpeed(distanceInMeters, timeInSeconds)
         val dateTimestamp = Calendar.getInstance().timeInMillis
-        val caloriesBurned = calculateCaloriesBurnedWalking(distanceInMeters, weight, avgSpeed)
+        val caloriesBurned = calculateCaloriesBurnedWalking(weight, timeInSeconds)
 
 
         // Format the avgsped and distance to two decimal places
@@ -412,28 +414,24 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     // calculate average speed in KM/H
-    private fun calculateAverageSpeed(distanceInMeters: Float): Float {
+    private fun calculateAverageSpeed(distanceInMeters: Float, timeInSeconds: Long): Float {
+        // convert seconds to hours
+        val timeInHours = timeInSeconds / 3600f
         val distanceInKilometers = distanceInMeters / 1000f
-
-        // convert milliseconds to hours
-        val timeInHours = currentTimeMillis / 1000f / 60 / 60
-
         return distanceInKilometers / timeInHours
     }
 
     // estimate calories burned walking
     private fun calculateCaloriesBurnedWalking(
-        distanceInMeters: Float,
         weight: Float,
-        avgSpeed: Float
+        timeInSeconds: Long
     ): Int {
-
         // formula obtained from here: https://captaincalculator.com/health/calorie/calories-burned-walking-calculator/
         // Average MET (Metabolic Equivalent of Task) for walking is approximately 3.5 METs
         val metValueWalking = 3.5f
 
-        // figure out the time spent walking
-        val timeInHours = distanceInMeters / avgSpeed
+        // convert seconds to hours
+        val timeInHours = timeInSeconds / 3600f
 
         // return calories estimated result
         return (metValueWalking * weight * timeInHours).toInt()

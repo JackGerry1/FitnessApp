@@ -73,7 +73,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+            .findFragmentById(R.id.mapRun) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
 
@@ -175,10 +175,11 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
     // save the run data to the database
     private fun saveRunDataToFirestore(imageUrl: String) {
         // get run stats using helper functions
+        val timeInSeconds = currentTimeMillis / 1000
         val distanceInMeters = calculateTotalDistance()
-        val avgSpeed = calculateAverageSpeed(distanceInMeters)
+        val avgSpeed = calculateAverageSpeed(distanceInMeters, timeInSeconds)
         val dateTimestamp = Calendar.getInstance().timeInMillis
-        val caloriesBurned = calculateCaloriesBurnedRunning(distanceInMeters, weight, avgSpeed)
+        val caloriesBurned = calculateCaloriesBurnedRunning(weight, timeInSeconds)
 
 
         // Format the data to two decimal places
@@ -257,30 +258,27 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     // calculate average speed in KM/H
-    private fun calculateAverageSpeed(distanceInMeters: Float): Float {
+    private fun calculateAverageSpeed(distanceInMeters: Float, timeInSeconds: Long): Float {
+        // convert seconds to hours
+        val timeInHours = timeInSeconds / 3600f
         val distanceInKilometers = distanceInMeters / 1000f
-
-        // convert milliseconds to hours
-        val timeInHours = currentTimeMillis / 1000f / 60 / 60
         return distanceInKilometers / timeInHours
     }
 
     // estimate calories burned running
     private fun calculateCaloriesBurnedRunning(
-        distanceInMeters: Float,
         weight: Float,
-        avgSpeed: Float
+        timeInSeconds: Long
     ): Int {
+        // formula obtained from here: https://captaincalculator.com/health/calorie/calories-burned-walking-calculator/
+        // Average MET (Metabolic Equivalent of Task) for walking is approximately 3.5 METs
+        val metValueWalking = 3.5f
 
-        // formula obtained from here: https://captaincalculator.com/health/calorie/calories-burned-running-calculator/
-        // Average MET (Metabolic Equivalent of Task) for running is approximately 8 METs
-        val metValueRunning = 8f
-
-        // figure out the time spent running
-        val timeInHours = distanceInMeters / avgSpeed
+        // convert seconds to hours
+        val timeInHours = timeInSeconds / 3600f
 
         // return calories estimated result
-        return (metValueRunning * weight * timeInHours).toInt()
+        return (metValueWalking * weight * timeInHours).toInt()
     }
 
     // create an image file for the map screenshot
@@ -304,7 +302,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // get the mapFragment and mapView
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.mapRun) as SupportMapFragment
         val mapView = mapFragment.view as View
 
         // move the camera to the bounds to prepare to get that image that will be stored in firestore
@@ -350,7 +348,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // stop run function, will reset the timer to zero, stop the service and navigate users to the homepage
     private fun stopRun() {
-        binding.textTimer.text = "00:00:00:00"
+        binding.textTimerRun.text = "00:00:00:00"
         sendCommandToService(Constants.ACTION_STOP_SERVICE)
         val intent = Intent(this, HomeActivity::class.java)
         startActivity(intent)
@@ -359,7 +357,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // finish run function, will reset the timer to zero, stop the service and navigate users to the homepage
     private fun finishRun() {
-        binding.textTimer.text = "00:00:00:00"
+        binding.textTimerRun.text = "00:00:00:00"
         sendCommandToService(Constants.ACTION_STOP_SERVICE)
         val intent = Intent(this, RunningStatsActivity::class.java)
         startActivity(intent)
@@ -396,7 +394,7 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
 
             // include the milliseconds
             val formattedTime = TrackingUtility.getFormattedStopWatchTime(currentTimeMillis, true)
-            binding.textTimer.text = formattedTime
+            binding.textTimerRun.text = formattedTime
         }
     }
 

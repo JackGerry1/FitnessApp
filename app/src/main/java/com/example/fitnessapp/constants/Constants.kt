@@ -30,6 +30,15 @@ class Constants {
         const val NOTIFICATION_CHANNEL_ID = "tracking_channel"
         const val NOTIFICATION_CHANNEL_NAME = "Tracking"
         const val NOTIFICATION_ID = 1
+
+        /*
+        * calories burned: https://www.omnicalculator.com/sports/steps-to-calories
+        * steps to km: https://www.thecalculatorsite.com/health/steps-km.php
+        * */
+
+        // step constants
+        const val STEPS_TO_KM = 0.000762
+        const val CALORIES_PER_STEP = 0.04
     }
 
 }

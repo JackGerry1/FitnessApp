@@ -63,6 +63,7 @@ dependencies {
     implementation ("com.google.dagger:hilt-android:2.51.1")
     annotationProcessor ("com.google.dagger:hilt-compiler:2.51.1")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation ("com.mikhaellopez:circularprogressbar:3.1.0")
 
 
 }
