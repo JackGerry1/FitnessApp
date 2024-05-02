@@ -5,7 +5,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".StepsActivity">
+    tools:context=".StepsActivity"
+    tools:layout_editor_absoluteX="-1dp"
+    tools:layout_editor_absoluteY="50dp">
 
     <TextView
         android:id="@+id/textView"
@@ -37,9 +39,9 @@
         app:cpb_background_progressbar_color="#b6bbd8"
         app:cpb_background_progressbar_width="5dp"
         app:cpb_progress_direction="to_right"
+        app:cpb_progress_max="2500"
         app:cpb_progressbar_color="#3f51b5"
         app:cpb_progressbar_width="10dp"
-        app:cpb_progress_max="2500"
         app:cpb_round_border="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -69,14 +71,47 @@
         app:layout_constraintStart_toStartOf="@+id/stepsProgressBar"
         app:layout_constraintTop_toBottomOf="@+id/textStepsTaken" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/stepsProgressBar"
+        tools:layout_editor_absoluteX="0dp"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnToggleSteps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Stop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textTimer" />
+
+        <Button
+            android:id="@+id/btnUploadSteps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="8dp"
+            android:text="Finish"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnToggleWalk" />
+
+
+    </LinearLayout>
     <TextView
         android:id="@+id/textCalories"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="17dp"
+        android:layout_marginTop="68dp"
         android:text="Calories Burned"
         android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stepsProgressBar" />
 
@@ -84,10 +119,11 @@
         android:id="@+id/textDistance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="4dp"
         android:text="KM"
         android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textCalories" />
 

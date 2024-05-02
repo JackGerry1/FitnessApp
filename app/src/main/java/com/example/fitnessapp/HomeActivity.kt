@@ -139,7 +139,6 @@ class HomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             "You need to accept location permissions to use this app.",
             REQUEST_CODE_LOCATION_PERMISSION,
             Manifest.permission.ACCESS_FINE_LOCATION
-
         )
 
     }

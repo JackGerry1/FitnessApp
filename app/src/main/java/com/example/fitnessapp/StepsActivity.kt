@@ -17,14 +17,22 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.fitnessapp.constants.Constants.Companion.CALORIES_PER_STEP
 import com.example.fitnessapp.constants.Constants.Companion.STEPS_TO_KM
 import com.example.fitnessapp.databinding.ActivityStepsBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.roundToInt
 
 class StepsActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var binding: ActivityStepsBinding
     private var sensorManager: SensorManager? = null
     private var running = false
+    private var isCounterRunning = true
     private var totalSteps = 0f
+    private var currentSteps = 0
     private var previousTotalSteps = 0f
+    private var lastResetDate: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,9 +52,53 @@ class StepsActivity : AppCompatActivity(), SensorEventListener {
             startActivity(intent)
             finish()
         }
+
+        binding.btnToggleSteps.setOnClickListener {
+            toggleStepCounter()
+        }
+
+        binding.btnUploadSteps.setOnClickListener {
+            if (currentSteps != 0) {
+                val distanceInKm = (currentSteps * STEPS_TO_KM)
+                val caloriesBurned = (currentSteps * CALORIES_PER_STEP).roundToInt()
+                uploadStepsToFirestore(currentSteps, caloriesBurned, distanceInKm)
+            } else {
+                Toast.makeText(this, "Steps count is zero.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         loadData()
         resetSteps()
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    }
+
+    private fun uploadStepsToFirestore(currentSteps: Int, caloriesBurned: Int, distanceInKm: Double) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            val db = FirebaseFirestore.getInstance()
+            val currentDate = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
+
+            val stepsData = hashMapOf(
+                "steps" to currentSteps,
+                "calories_burned" to caloriesBurned,
+                "distance_in_km" to distanceInKm
+            )
+
+            val dailyStepsRef = db.collection("steps")
+                .document(currentUser.uid)
+                .collection("daily_steps")
+                .document(currentDate)
+
+            dailyStepsRef.set(stepsData)
+                .addOnSuccessListener {
+                    Log.d("StepsActivity", "Steps data uploaded successfully.")
+                    Toast.makeText(this, "Steps data uploaded successfully.", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    Log.w("StepsActivity", "Error uploading steps data", e)
+                    Toast.makeText(this, "Error uploading steps data.", Toast.LENGTH_SHORT).show()
+                }
+        }
     }
 
     override fun onResume() {
@@ -66,7 +118,7 @@ class StepsActivity : AppCompatActivity(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent?) {
         if (running) {
             totalSteps = event!!.values[0]
-            val currentSteps = totalSteps.toInt() - previousTotalSteps.toInt()
+            currentSteps = totalSteps.toInt() - previousTotalSteps.toInt()
             binding.textStepsTaken.text = "$currentSteps"
 
             // Calculate and display distance
@@ -88,6 +140,18 @@ class StepsActivity : AppCompatActivity(), SensorEventListener {
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         // No implementation needed for step counter
     }
+
+    private fun toggleStepCounter() {
+        if (isCounterRunning) {
+            running = false
+            binding.btnToggleSteps.text = "Start"
+        } else {
+            running = true
+            binding.btnToggleSteps.text = "Stop"
+        }
+        isCounterRunning = !isCounterRunning
+    }
+
     private fun resetSteps() {
         binding.textStepsTaken.setOnClickListener {
             Toast.makeText(this, "Long Tap To Reset Steps", Toast.LENGTH_SHORT).show()
@@ -111,15 +175,26 @@ class StepsActivity : AppCompatActivity(), SensorEventListener {
         editor.putFloat("key1", previousTotalSteps)
         editor.apply()
     }
+
     private fun loadData() {
         val sharedPreferences = getSharedPreferences("myPrefs", Context.MODE_PRIVATE)
-        previousTotalSteps = if (sharedPreferences.contains("key1")) {
-            val savedNumber = sharedPreferences.getFloat("key1", 0f)
-            savedNumber
-        } else {
-            0f
+        previousTotalSteps = sharedPreferences.getFloat("key1", 0f)
+        lastResetDate = sharedPreferences.getString("lastResetDate", null)
+
+        if (!isSameDay(lastResetDate)) {
+            // Reset steps if it's a new day
+            previousTotalSteps = 0f
+            saveData()
         }
-        Log.d("Steps Activity", "Previous total steps: $previousTotalSteps")
+    }
+    private fun getCurrentDate(): String {
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        return dateFormat.format(Date())
     }
 
+    private fun isSameDay(dateString: String?): Boolean {
+        if (dateString.isNullOrEmpty()) return false
+        val currentDate = getCurrentDate()
+        return currentDate == dateString
+    }
 }
