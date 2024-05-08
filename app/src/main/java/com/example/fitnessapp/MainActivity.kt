@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -16,6 +17,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import java.util.jar.Manifest
+
+/*
+References:
+
+  Steibel, A. (2021). Is Your Android App Using Dark Mode against Your will? [online]
+  Medium. Available at: https://audric-steibel.medium.com/is-your-android-app-using-dark-mode-against-your-will-fa8be22aaf24 [Accessed 7 May 2024].
+
+*/
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,6 +48,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         supportActionBar?.hide()
+
+        // override device theme
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         // firebase auth
         auth = Firebase.auth

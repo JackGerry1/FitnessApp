@@ -2,20 +2,17 @@ package com.example.fitnessapp
 
 import android.Manifest
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.fitnessapp.constants.Constants.Companion.REQUEST_CODE_LOCATION_PERMISSION
 import com.example.fitnessapp.databinding.ActivityHomeBinding
-import com.example.fitnessapp.utilties.TrackingUtility
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth

@@ -75,6 +75,7 @@ class SignUpActivity : AppCompatActivity() {
             val sex = sexOptions[spinner.selectedItemPosition]
             val height = binding.etHeight.text.toString()
             val weight = binding.etWeight.text.toString()
+            val daily_step_goal = binding.etSteps.text.toString()
             val password = binding.etPassword.text.toString()
 
             // if all fields are filled
@@ -94,7 +95,8 @@ class SignUpActivity : AppCompatActivity() {
                                 "age" to age,
                                 "sex" to sex,
                                 "height" to height,
-                                "weight" to weight
+                                "weight" to weight,
+                                "daily_step_goal" to daily_step_goal
                             )
 
                             // create a users collection and fill in the user data from the hashmap
@@ -153,6 +155,11 @@ class SignUpActivity : AppCompatActivity() {
         }
 
         if(binding.etWeight.text.toString() == "") {
+            binding.textInputLayoutWeight.error = "This is a required field"
+            return false
+        }
+
+        if(binding.etSteps.text.toString() == "") {
             binding.textInputLayoutWeight.error = "This is a required field"
             return false
         }

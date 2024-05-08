@@ -16,6 +16,7 @@ import java.util.Locale
 
 class ActivityAdapter(private val activityDataList: List<ActivityData>) : RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>() {
 
+    // where the data for the runs and walks will be displayed
     inner class ActivityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val dateTextView: TextView = itemView.findViewById(R.id.textDate)
         val avgSpeedTextView: TextView = itemView.findViewById(R.id.textAvgSpeed)
@@ -25,14 +26,17 @@ class ActivityAdapter(private val activityDataList: List<ActivityData>) : Recycl
         val imageView: ImageView = itemView.findViewById(R.id.imgWalk)
     }
 
+    // display the walk/run data
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivityViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_walk, parent, false)
         return ActivityViewHolder(itemView)
     }
 
+    // set all of the data for the run/walk
     override fun onBindViewHolder(holder: ActivityViewHolder, position: Int) {
         val activityData = activityDataList[position]
 
+        // create a formatted date into the format 07/05/2024
         val formattedDuration = TrackingUtility.getFormattedStopWatchTime(activityData.durationInMillis!!, true)
         val dateTimestamp = activityData.dateTimestamp
         val dateFormat = SimpleDateFormat("HH:mm:ss dd-MM-yyyy", Locale.getDefault())
@@ -42,6 +46,7 @@ class ActivityAdapter(private val activityDataList: List<ActivityData>) : Recycl
             "N/A"
         }
 
+        // display the text and image results for each item in the recycler view based on walk/run data
         holder.dateTextView.text = "Date: $formattedDate"
         holder.avgSpeedTextView.text = "Average Speed: ${activityData.avgSpeed ?: "N/A"} km/h"
         holder.distanceTextView.text = "Distance: ${activityData.distanceInKM ?: "N/A"} kilometers"
@@ -54,6 +59,7 @@ class ActivityAdapter(private val activityDataList: List<ActivityData>) : Recycl
         }
     }
 
+    // iterate through all of the data
     override fun getItemCount(): Int {
         return activityDataList.size
     }

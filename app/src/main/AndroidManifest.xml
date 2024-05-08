@@ -25,6 +25,9 @@
         android:theme="@style/Theme.FitnessApp"
         tools:targetApi="31">
         <activity
+            android:name=".StepsStatsActivity"
+            android:exported="false" />
+        <activity
             android:name=".RunningStatsActivity"
             android:exported="false" />
         <activity

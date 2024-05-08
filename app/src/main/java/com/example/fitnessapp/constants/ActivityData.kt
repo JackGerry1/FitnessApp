@@ -1,5 +1,6 @@
 package com.example.fitnessapp.constants
 
+// data for the walks and runs that will be stored and displayed to users
 data class ActivityData(
     val dateTimestamp: Long? = null,
     val avgSpeed: String? = null,
