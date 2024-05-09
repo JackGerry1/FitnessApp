@@ -5,7 +5,7 @@ import android.os.Environment
 import java.io.File
 import java.io.FileOutputStream
 
-class ImageUtils {
+object ImageUtils {
     // This value is 2 ^ 18 - 1, and is used to clamp the RGB values before their ranges
     // are normalized to eight bits.
     val kMaxChannelValue = 262143
@@ -138,4 +138,5 @@ class ImageUtils {
                 )
             }
         }
-    }}
+    }
+}
