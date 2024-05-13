@@ -1,189 +1,182 @@
 package com.example.fitnessapp
 
-import android.app.Fragment
+
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+
 import android.graphics.Bitmap
-import android.hardware.camera2.CameraAccessException
-import android.hardware.camera2.CameraManager
-import android.media.Image
-import android.media.ImageReader
+import android.graphics.Canvas
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
+import android.os.Build
 import android.os.Bundle
+
 import android.util.Log
-import android.util.Size
-import android.view.Surface
-import androidx.activity.enableEdgeToEdge
+import android.view.View
+
+import android.widget.ImageView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+
+
+import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+
+import androidx.camera.view.PreviewView
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import com.example.fitnessapp.databinding.ActivityHeartBinding
-import com.example.fitnessapp.fragments.CameraConnectionFragment
-import com.example.fitnessapp.utilties.ImageUtils
+import com.google.common.util.concurrent.ListenableFuture
 
-open class HeartActivity : AppCompatActivity(), ImageReader.OnImageAvailableListener {
+import java.util.concurrent.Executor
 
+
+class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
+    private var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>? = null
+    private var grayView: ImageView? = null
+    private var previewView: PreviewView? = null
+    private var cameraProvider: ProcessCameraProvider? = null
     private lateinit var binding: ActivityHeartBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityHeartBinding.inflate(layoutInflater)
 
-        enableEdgeToEdge()
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+
+        previewView = binding.previewView
+        grayView = binding.grayView
+        grayView!!.setVisibility(View.GONE)
+
+        cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
         binding.imgBack.setOnClickListener {
             val intent = Intent(this, HomeActivity::class.java)
             startActivity(intent)
             finish()
         }
-        if (checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED
-        ) {
-            val permission = arrayOf(
-                android.Manifest.permission.CAMERA
 
-            )
-            requestPermissions(permission, 1122)
-        } else {
-            setFragment()
+        binding.imgStartHeart.setOnClickListener {
+            if (hasPermissions(baseContext)) {
+                cameraProviderFuture!!.addListener({
+                    cameraProvider = cameraProviderFuture!!.get()
+                    startCameraX()
+
+                }, executor)
+            } else {
+                // Request permissions if not granted
+                activityResultLauncher.launch(REQUIRED_PERMISSIONS)
+            }
+        }
+
+        val graySwitch = binding.grayscaleSwitch
+        graySwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                grayView!!.setVisibility(View.VISIBLE)
+            } else {
+                grayView!!.setVisibility(View.INVISIBLE)
+            }
         }
     }
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String?>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            // show live camera footage
-            setFragment()
-        } else {
-            finish()
-        }
-    }
-    var previewHeight = 0
-    var previewWidth = 0
-    var sensorOrientation = 0
-    @Suppress("DEPRECATION")
-    private fun setFragment() {
-        val manager =
-            getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        var cameraId: String? = null
-        try {
-            cameraId = manager.cameraIdList[0]
-        } catch (e: CameraAccessException) {
-            e.printStackTrace()
-        }
-        val fragment: Fragment
-        val camera2Fragment = CameraConnectionFragment.newInstance(
-            object :
-                CameraConnectionFragment.ConnectionCallback {
-                override fun onPreviewSizeChosen(size: Size?, cameraRotation: Int) {
-                    previewHeight = size!!.height
-                    previewWidth = size.width
-                    sensorOrientation = cameraRotation - getScreenOrientation()
-                }
-            },
-            this,
-            R.layout.camera_fragment,
-            Size(640, 480)
+
+    private val executor: Executor
+        get() = ContextCompat.getMainExecutor(this)
+
+    private fun startCameraX() {
+        cameraProvider?.unbindAll()
+
+        val cameraSelector = CameraSelector.Builder()
+            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+            .build()
+        val preview = Preview.Builder()
+            .build()
+        preview.setSurfaceProvider(previewView!!.getSurfaceProvider())
+
+        // Image analysis use case
+        val imageAnalysis = ImageAnalysis.Builder()
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .build()
+        imageAnalysis.setAnalyzer(executor, this)
+
+        // Bind to lifecycle
+        val camera = cameraProvider?.bindToLifecycle(
+            (this as LifecycleOwner),
+            cameraSelector,
+            preview,
+            imageAnalysis
         )
-        camera2Fragment.setCamera(cameraId)
-        fragment = camera2Fragment
-        fragmentManager.beginTransaction().replace(R.id.container, fragment).commit()
+
+        // Get an instance of CameraControl and enable the torch
+        camera?.cameraControl?.enableTorch(true)
     }
 
-
-    private fun getScreenOrientation(): Int {
-        @Suppress("DEPRECATION")
-        return when (windowManager.defaultDisplay.rotation) {
-            Surface.ROTATION_270 -> 270
-            Surface.ROTATION_180 -> 180
-            Surface.ROTATION_90 -> 90
-            else -> 0
-        }
+    override fun analyze(image: ImageProxy) {
+        // image processing here for the current frame
+        Log.d("TAG", "analyze: got the frame at: " + image.imageInfo.timestamp)
+        val bitmap = previewView!!.getBitmap()
+        image.close()
+        if (bitmap == null) return
+        val bitmap1 = toGrayscale(bitmap)
+        runOnUiThread { grayView!!.setImageBitmap(bitmap1) }
     }
 
-    //TODO getting frames of live camera footage and passing them to model
-
-    //TODO getting frames of live camera footage and passing them to model
-    private var isProcessingFrame = false
-    private val yuvBytes = arrayOfNulls<ByteArray>(3)
-    private var rgbBytes: IntArray? = null
-    private var yRowStride = 0
-    private var postInferenceCallback: Runnable? = null
-    private var imageConverter: Runnable? = null
-    private var rgbFrameBitmap: Bitmap? = null
-    override fun onImageAvailable(reader: ImageReader) {
-        // We need wait until we have some size from onPreviewSizeChosen
-        if (previewWidth == 0 || previewHeight == 0) {
-            return
-        }
-        if (rgbBytes == null) {
-            rgbBytes = IntArray(previewWidth * previewHeight)
-        }
-        try {
-            val image = reader.acquireLatestImage() ?: return
-            if (isProcessingFrame) {
-                image.close()
-                return
+    private fun toGrayscale(bmpOriginal: Bitmap): Bitmap {
+        val height: Int = bmpOriginal.getHeight()
+        val width: Int = bmpOriginal.getWidth()
+        val bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val c = Canvas(bmpGrayscale)
+        val paint = Paint()
+        val cm = ColorMatrix()
+        cm.setSaturation(0f)
+        val f = ColorMatrixColorFilter(cm)
+        paint.setColorFilter(f)
+        c.drawBitmap(bmpOriginal, 0f, 0f, paint)
+        return bmpGrayscale
+    }
+    private val activityResultLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        )
+        { permissions ->
+            // Handle Permission granted/rejected
+            var permissionGranted = true
+            permissions.entries.forEach {
+                if (it.key in REQUIRED_PERMISSIONS && !it.value)
+                    permissionGranted = false
             }
-            isProcessingFrame = true
-            val planes = image.planes
-            fillBytes(planes, yuvBytes)
-            yRowStride = planes[0].rowStride
-            val uvRowStride = planes[1].rowStride
-            val uvPixelStride = planes[1].pixelStride
-            imageConverter = Runnable {
-                ImageUtils.convertYUV420ToARGB8888(
-                    yuvBytes[0]!!,
-                    yuvBytes[1]!!,
-                    yuvBytes[2]!!,
-                    previewWidth,
-                    previewHeight,
-                    yRowStride,
-                    uvRowStride,
-                    uvPixelStride,
-                    rgbBytes!!
-                )
+            if (!permissionGranted) {
+                Toast.makeText(
+                    baseContext,
+                    "Permission request denied",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                startCameraX()
             }
-            postInferenceCallback = Runnable {
-                image.close()
-                isProcessingFrame = false
-            }
-            processImage()
-        } catch (e: Exception) {
-            return
+        }
+
+    companion object {
+        private val REQUIRED_PERMISSIONS =
+            mutableListOf(
+                android.Manifest.permission.CAMERA
+            ).apply {
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                    add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                }
+            }.toTypedArray()
+
+
+        fun hasPermissions(context: Context) = REQUIRED_PERMISSIONS.all {
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }
     }
 
-
-    private fun processImage() {
-        imageConverter!!.run()
-        rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Bitmap.Config.ARGB_8888)
-        rgbBytes?.let { rgbFrameBitmap?.setPixels(it, 0, previewWidth, 0, 0, previewWidth, previewHeight) }
-        postInferenceCallback!!.run()
-    }
-
-    protected fun fillBytes(
-        planes: Array<Image.Plane>,
-        yuvBytes: Array<ByteArray?>
-    ) {
-        // Because of the variable row stride it's not possible to know in
-        // advance the actual necessary dimensions of the yuv planes.
-        for (i in planes.indices) {
-            val buffer = planes[i].buffer
-            if (yuvBytes[i] == null) {
-                yuvBytes[i] = ByteArray(buffer.capacity())
-            }
-            buffer[yuvBytes[i]!!]
-            Log.d("Processing Bytes", "We Processing Bytes")
-        }
-    }
 }
