@@ -167,8 +167,6 @@ class StepsActivity : AppCompatActivity(), SensorEventListener {
         super.onResume()
         running = true
         val stepSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
-        val test = sensorManager?.getDefaultSensor(Sensor.TYPE_HEART_BEAT)
-        val test2 = sensorManager?.getDefaultSensor(Sensor.TYPE_HEART_RATE)
 
         if(stepSensor == null) {
             Toast.makeText(this, "No Step Sensor Found", Toast.LENGTH_SHORT).show()

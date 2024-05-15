@@ -28,7 +28,7 @@ class ActivityAdapter(private val activityDataList: List<ActivityData>) : Recycl
 
     // display the walk/run data
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivityViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_walk, parent, false)
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_activity, parent, false)
         return ActivityViewHolder(itemView)
     }
 
