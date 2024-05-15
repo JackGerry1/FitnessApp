@@ -2,6 +2,7 @@ package com.example.fitnessapp
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -56,6 +57,7 @@ class StepsActivity : AppCompatActivity(), SensorEventListener {
         }
 
         // start/stop button
+        binding.btnToggleSteps.setBackgroundColor((Color.rgb(245, 20, 43)))
         binding.btnToggleSteps.setOnClickListener {
             toggleStepCounter()
         }
@@ -64,6 +66,7 @@ class StepsActivity : AppCompatActivity(), SensorEventListener {
         stepsGoalText = binding.textTotalMax
 
         // upload steps to firebase code
+        binding.btnUploadSteps.setBackgroundColor((Color.rgb(245, 20, 43)))
         binding.btnUploadSteps.setOnClickListener {
             if (currentSteps != 0) {
                 val distanceInKm = (currentSteps * STEPS_TO_KM)

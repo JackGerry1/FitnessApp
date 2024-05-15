@@ -5,6 +5,7 @@ import android.R.attr.text
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -77,8 +78,8 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
             startActivity(intent)
             finish()
         }
-
-        binding.imgStartHeart.setOnClickListener {
+        binding.btnStartHeart.setBackgroundColor((Color.rgb(245, 20, 43)))
+        binding.btnStartHeart.setOnClickListener {
             if (hasPermissions(baseContext)) {
                 cameraProviderFuture!!.addListener({
                     cameraProvider = cameraProviderFuture!!.get()
@@ -119,7 +120,7 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
                     // Display toast indicating successful completion
 
                     saveHeartRateData()
-                    val intent = Intent(this@HeartActivity, HomeActivity::class.java)
+                    val intent = Intent(this@HeartActivity, HeartStatsActivity::class.java)
                     startActivity(intent)
                     finish()
                 }
@@ -278,7 +279,7 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
             }
         } else if (imgAvg > rollingAverage) {
             newType = TYPE.GREEN
-            heartImage.setImageResource(R.drawable.heart_font_awesome)
+            heartImage.setImageResource(R.drawable.heart_white)
         }
 
         if (averageIndex == averageArraySize) averageIndex = 0

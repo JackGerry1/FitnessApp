@@ -1,6 +1,7 @@
 package com.example.fitnessapp
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
@@ -86,6 +87,7 @@ class ProfilePictureActivity : AppCompatActivity() {
 
         // take the uri of the image from the camera and use in the college
         val btnCamera = findViewById<Button>(R.id.btnCamera)
+        btnCamera.setBackgroundColor(Color.rgb(245, 20, 43))
         btnCamera.setOnClickListener {
             // Update URI before launching camera
             uri = createImageUri()
@@ -106,11 +108,13 @@ class ProfilePictureActivity : AppCompatActivity() {
             }
 
         // launch gallery on button click
+        btnGallery.setBackgroundColor(Color.rgb(245, 20, 43))
         btnGallery.setOnClickListener {
             galleryImage.launch("image/*")
         }
 
         // use the default profile picture
+        btnSkip.setBackgroundColor(Color.rgb(245, 20, 43))
         btnSkip.setOnClickListener {
             val intent = Intent(this, SignInActivity::class.java)
             startActivity(intent)
@@ -118,6 +122,7 @@ class ProfilePictureActivity : AppCompatActivity() {
         }
 
         // upload the photo to firebase storage and firestore on the current user id
+        btnUpload.setBackgroundColor(Color.rgb(245, 20, 43))
         btnUpload.setOnClickListener {
             // create a unique image name based on current time in milliseconds
             storageRef.getReference("Images").child(System.currentTimeMillis().toString())

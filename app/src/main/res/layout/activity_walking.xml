@@ -6,10 +6,12 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black"
     tools:context=".WorkoutActivity">
 
     <TextView
         android:id="@+id/textView"
+        android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -25,7 +27,6 @@
         android:id="@+id/imgBack"
         android:layout_width="47dp"
         android:layout_height="59dp"
-        android:background="@drawable/circle_shape"
         android:src="@drawable/baseline_arrow_back_24"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -46,6 +47,7 @@
         android:layout_marginTop="28dp"
         android:text="00:00:00"
         android:textSize="32dp"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -107,6 +109,8 @@
         android:layout_alignParentBottom="true"
         android:elevation="2dp"
         app:itemIconSize="30dp"
+        app:backgroundTint="@color/black"
+        app:itemIconTint="@color/white"
         app:itemRippleColor="@android:color/transparent"
         app:labelVisibilityMode="unlabeled"
         app:layout_constraintBottom_toBottomOf="parent"

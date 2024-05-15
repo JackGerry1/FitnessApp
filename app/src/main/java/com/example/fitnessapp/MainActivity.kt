@@ -1,6 +1,7 @@
 package com.example.fitnessapp
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -66,6 +67,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        binding.btnSignIn.setBackgroundColor(Color.rgb(245, 20, 43))
+        binding.btnSignUp.setBackgroundColor(Color.rgb(245, 20, 43))
         // loop to check if the user has logged in previously and closed the app
         Handler(Looper.getMainLooper()).postDelayed({
 

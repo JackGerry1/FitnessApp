@@ -1,6 +1,7 @@
 package com.example.fitnessapp
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
@@ -42,6 +43,7 @@ class SignInActivity : AppCompatActivity() {
             val intent = Intent(this, SignUpActivity::class.java)
             startActivity(intent)
         }
+        binding.btnSignIn.setBackgroundColor(Color.rgb(245, 20, 43))
 
         // sign in logic
         binding.btnSignIn.setOnClickListener {

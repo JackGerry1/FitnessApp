@@ -2,6 +2,7 @@ package com.example.fitnessapp
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -16,7 +17,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.fitnessapp.constants.Constants
-import com.example.fitnessapp.databinding.ActivityCalorieBinding
 import com.example.fitnessapp.databinding.ActivityRunningBinding
 import com.example.fitnessapp.databinding.ActivityWalkingBinding
 import com.google.android.gms.maps.GoogleMap
@@ -89,11 +89,13 @@ class RunningActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // button to start/stop a run
+        binding.btnToggleRun.setBackgroundColor(Color.rgb(245, 20, 43))
         binding.btnToggleRun.setOnClickListener {
             toggleRun()
         }
 
         // button to finish the run
+        binding.btnFinishRun.setBackgroundColor(Color.rgb(245, 20, 43))
         binding.btnFinishRun.setOnClickListener {
             zoomToSeeWholeTrack()
             endRunAndSaveToDb()

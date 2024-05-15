@@ -5,10 +5,12 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black"
     tools:context=".SignInActivity">
 
     <TextView
         android:id="@+id/textView"
+        android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="70dp"
@@ -24,6 +26,9 @@
         android:id="@+id/textInputLayoutEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:startIconTint="@color/white"
         android:layout_margin="50dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -33,6 +38,9 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etEmail"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            app:startIconTint="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/transparent"
@@ -45,6 +53,9 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayoutPassword"
         android:layout_width="match_parent"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:startIconTint="@color/white"
         android:layout_height="wrap_content"
         android:layout_margin="50dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -60,9 +71,12 @@
             android:layout_height="wrap_content"
             android:background="@color/transparent"
             android:hint="Password"
+            android:textColorHint="@color/white"
+            android:textColor="@color/white"
             android:inputType="textPassword"
             android:paddingStart="40dp"
-            android:paddingEnd="40dp" />
+            android:paddingEnd="40dp"
+            />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
@@ -92,6 +106,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Don't Have An Account?"
+            android:textColor="@color/white"
             android:textSize="18sp" />
 
         <TextView

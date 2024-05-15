@@ -66,12 +66,6 @@ class HomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             finish()
         }
 
-        binding.btnCalories.setOnClickListener {
-            val intent = Intent(this, CalorieActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
-
         binding.btnHeart.setOnClickListener {
             val intent = Intent(this, HeartActivity::class.java)
             startActivity(intent)

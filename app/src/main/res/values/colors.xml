@@ -3,5 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00FDFDFD</color>
-    <color name="link_blue">#007bff</color>
+    <color name="link_blue">#1D75FF</color>
+    <color name="red">#F5142B</color>
+    <color name="orange_red">#DB3233</color>
 </resources>

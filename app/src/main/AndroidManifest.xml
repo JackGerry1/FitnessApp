@@ -57,9 +57,6 @@
             android:name=".WorkoutActivity"
             android:exported="false" />
         <activity
-            android:name=".CalorieActivity"
-            android:exported="false" />
-        <activity
             android:name=".RunningActivity"
             android:exported="false" />
         <activity

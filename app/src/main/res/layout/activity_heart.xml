@@ -5,10 +5,12 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black"
     tools:context=".HeartActivity">
 
     <TextView
         android:id="@+id/textView"
+        android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -24,7 +26,6 @@
         android:id="@+id/imgBack"
         android:layout_width="47dp"
         android:layout_height="59dp"
-        android:background="@drawable/circle_shape"
         android:src="@drawable/baseline_arrow_back_24"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -40,7 +41,7 @@
         app:layout_constraintTop_toBottomOf="@+id/imgHeartRateFull" />
 
     <Button
-        android:id="@+id/imgStartHeart"
+        android:id="@+id/btnStartHeart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -56,6 +57,7 @@
 
     <TextView
         android:id="@+id/textHeartRate"
+        android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -75,11 +77,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
-        app:srcCompat="@drawable/heart_font_awesome" />
+        app:srcCompat="@drawable/heart_white" />
 
     <TextView
         android:id="@+id/textInstructions"
         android:layout_width="360dp"
+        android:textColor="@color/white"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Tap 'Measure Heart Rate' and gently rest your finger on your rear camera."
@@ -100,6 +103,8 @@
         app:labelVisibilityMode="unlabeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:backgroundTint="@color/black"
+        app:itemIconTint="@color/white"
         app:layout_constraintVertical_bias="1.0"
         app:menu="@menu/bottom_heart_menu"
         tools:layout_editor_absoluteX="0dp" />

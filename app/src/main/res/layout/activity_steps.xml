@@ -6,11 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".StepsActivity"
+    android:background="@color/black"
     tools:layout_editor_absoluteX="-1dp"
     tools:layout_editor_absoluteY="50dp">
 
     <TextView
         android:id="@+id/textView"
+        android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
@@ -26,7 +28,6 @@
         android:id="@+id/imgBack"
         android:layout_width="47dp"
         android:layout_height="59dp"
-        android:background="@drawable/circle_shape"
         android:src="@drawable/baseline_arrow_back_24"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -36,7 +37,7 @@
         android:layout_width="318dp"
         android:layout_height="314dp"
         android:layout_marginTop="64dp"
-        app:cpb_background_progressbar_color="#b6bbd8"
+        app:cpb_background_progressbar_color="@color/white"
         app:cpb_background_progressbar_width="5dp"
         app:cpb_progress_direction="to_right"
         app:cpb_progress_max="2500"
@@ -53,6 +54,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="128dp"
+        android:textColor="@color/white"
         android:text="0"
         android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="@+id/stepsProgressBar"
@@ -63,6 +65,7 @@
     <TextView
         android:id="@+id/textTotalMax"
         android:layout_width="wrap_content"
+        android:textColor="@color/white"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="/2500"
@@ -108,6 +111,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="68dp"
+        android:textColor="@color/white"
         android:text="Calories Burned"
         android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -123,6 +127,7 @@
         android:text="KM"
         android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@color/white"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textCalories" />
@@ -136,6 +141,8 @@
         app:itemIconSize="30dp"
         app:itemRippleColor="@android:color/transparent"
         app:labelVisibilityMode="unlabeled"
+        app:backgroundTint="@color/black"
+        app:itemIconTint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"

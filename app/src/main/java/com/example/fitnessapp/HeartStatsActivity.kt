@@ -57,11 +57,11 @@ class HeartStatsActivity : AppCompatActivity() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 // if walk stay on the same page because you are already here
-                R.id.bottom_heart -> true
+                R.id.bottom_heart_stats -> true
 
                 // if clicking on the stats navigate to the stats page
-                R.id.bottom_heart_stats -> {
-                    startActivity(Intent(applicationContext, HeartStatsActivity::class.java))
+                R.id.bottom_heart -> {
+                    startActivity(Intent(applicationContext, HeartActivity::class.java))
                     finish()
                     true
                 }

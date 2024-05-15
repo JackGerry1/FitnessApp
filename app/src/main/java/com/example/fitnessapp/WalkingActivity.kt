@@ -3,6 +3,7 @@ package com.example.fitnessapp
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -103,11 +104,13 @@ class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // button to start/stop a walk
+        binding.btnToggleWalk.setBackgroundColor(Color.rgb(245, 20, 43))
         binding.btnToggleWalk.setOnClickListener {
             toggleWalk()
         }
 
         // button to finish the walk
+        binding.btnFinishWalk.setBackgroundColor(Color.rgb(245, 20, 43))
         binding.btnFinishWalk.setOnClickListener {
             zoomToSeeWholeTrack()
             endWalkAndSaveToDb()
