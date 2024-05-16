@@ -34,6 +34,9 @@ References:
     Firebase (2024b). Upload Files with Cloud Storage on Android.
     [online] Firebase. Available at: https://firebase.google.com/docs/storage/android/upload-files [Accessed 18 Apr. 2024].
 
+    W L PROJECT (2023). Upload Image to Firebase in Android Studio Jetpack Compose | Upload Image Jetpack Compose | #4.
+    [online] YouTube. Available at: https://www.youtube.com/watch?v=7ZBCvf2sh5E [Accessed 18 Apr. 2024].
+
     Ghinna, R. (2020). Android : How to make circle image with Glide.
     [online] Medium. Available at: https://rizkaghina29.medium.com/android-how-to-make-circle-image-with-glide-bb0b50fbbda [Accessed 18 Apr. 2024].
 
