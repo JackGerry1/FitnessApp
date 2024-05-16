@@ -40,6 +40,8 @@ References:
   Coding Reel (2022). Camera X Image Analysis Convert Realtime Preview to Grayscale in Java. [online]
   YouTube. Available at: https://www.youtube.com/watch?v=4vv2PtfdWRQ [Accessed 13 May 2024].
 
+  Firebase (2024a). Add Data to Cloud Firestore.
+  [online] Firebase. Available at: https://firebase.google.com/docs/firestore/manage-data/add-data#kotlin+ktx_2 [Accessed 19 Apr. 2024].
 */
 class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
     // global variables for binding and camerax
