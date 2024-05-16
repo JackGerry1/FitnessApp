@@ -34,7 +34,6 @@ class HomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
     private lateinit var binding: ActivityHomeBinding
-    private var permissionsAlreadyDenied = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestPermissions()
@@ -66,31 +65,31 @@ class HomeActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             finish()
         }
 
-        binding.btnHeart.setOnClickListener {
+        binding.imgHeartPage.setOnClickListener {
             val intent = Intent(this, HeartActivity::class.java)
             startActivity(intent)
             finish()
         }
 
-        binding.btnRun.setOnClickListener {
+        binding.imgStartRun.setOnClickListener {
             val intent = Intent(this, RunningActivity::class.java)
             startActivity(intent)
             finish()
         }
 
-        binding.btnWalk.setOnClickListener {
+        binding.imgStartWalk.setOnClickListener {
             val intent = Intent(this, WalkingActivity::class.java)
             startActivity(intent)
             finish()
         }
 
-        binding.btnSteps.setOnClickListener {
+        binding.imgStepsIcon.setOnClickListener {
             val intent = Intent(this, StepsActivity::class.java)
             startActivity(intent)
             finish()
         }
 
-        binding.btnWorkout.setOnClickListener {
+        binding.imgStartWorkout.setOnClickListener {
             val intent = Intent(this, WorkoutActivity::class.java)
             startActivity(intent)
             finish()

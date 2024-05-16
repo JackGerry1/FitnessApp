@@ -17,7 +17,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
+/*
+References:
 
+  Lackner, P. (2020c). Updating the Notification - MVVM Running Tracker App - Part 16. [online] YouTube.
+  Available at: https://www.youtube.com/watch?v=OE6wB_MHmgA&list=PLQkwcJG4YTCQ6emtoqSZS2FVwZR9FT3BV&index=16 [Accessed 24 Apr. 2024].
+
+*/
 @Module
 @InstallIn(ServiceComponent::class)
 object ServiceModule {

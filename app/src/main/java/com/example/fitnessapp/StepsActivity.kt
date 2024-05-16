@@ -26,6 +26,16 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
+/*
+References:
+
+ Indently (2020). How to create a Step Counter/Pedometer in Android Studio (Kotlin 2020). [online]
+ YouTube. Available at: https://www.youtube.com/watch?app=desktop&v=WSx2a99kPY4 [Accessed 2 May 2024].
+
+  Firebase (2024a). Add Data to Cloud Firestore.
+  [online] Firebase. Available at: https://firebase.google.com/docs/firestore/manage-data/add-data#kotlin+ktx_2 [Accessed 8 May. 2024].
+*/
+
 class StepsActivity : AppCompatActivity(), SensorEventListener {
 
     // declare global variables for step counter, firebase and user

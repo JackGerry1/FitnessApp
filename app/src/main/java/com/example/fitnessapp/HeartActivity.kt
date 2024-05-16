@@ -1,7 +1,6 @@
 package com.example.fitnessapp
 
 
-import android.R.attr.text
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -27,23 +25,30 @@ import com.example.fitnessapp.utilties.ImageUtility
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
 import java.nio.ByteBuffer
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 import java.util.Timer
 import java.util.TimerTask
 import java.util.concurrent.Executor
 
+/*
+References:
 
+  Wetherell, J. (2013). android-heart-rate-monitor. [online]
+  GitHub. Available at: https://github.com/phishman3579/android-heart-rate-monitor [Accessed 15 May 2024].
+
+  Coding Reel (2022). Camera X Image Analysis Convert Realtime Preview to Grayscale in Java. [online]
+  YouTube. Available at: https://www.youtube.com/watch?v=4vv2PtfdWRQ [Accessed 13 May 2024].
+
+*/
 class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
+    // global variables for binding and camerax
+    private lateinit var binding: ActivityHeartBinding
     private var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>? = null
     private var previewView: PreviewView? = null
     private var cameraProvider: ProcessCameraProvider? = null
-    private lateinit var binding: ActivityHeartBinding
+
+    // global variables for timer, and heart rate tracking and calculation
     private var timer: Timer? = null
     private var beatsIndex = 0
     private val beatsArraySize = 3
@@ -54,8 +59,11 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
     private val averageArraySize = 4
     private val averageArray = IntArray(averageArraySize)
     private var beatsAvg = 0
+
+    // global firebase current user
     private var currentUser = FirebaseAuth.getInstance().currentUser
 
+    // enum to be able to switch between beat detected and not
     enum class TYPE {
         GREEN,
         RED
@@ -69,6 +77,7 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
 
         setContentView(binding.root)
 
+        // prepare camerax to get camera preview
         previewView = binding.previewView
 
         cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -78,8 +87,12 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
             startActivity(intent)
             finish()
         }
+
+        // btn start heart
         binding.btnStartHeart.setBackgroundColor((Color.rgb(245, 20, 43)))
         binding.btnStartHeart.setOnClickListener {
+
+            // if has permissions start timer and cameraX
             if (hasPermissions(baseContext)) {
                 cameraProviderFuture!!.addListener({
                     cameraProvider = cameraProviderFuture!!.get()
@@ -110,6 +123,7 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
         }
     }
 
+    // function to start a 30s timer so that the heart rate measurment will end then
     private fun startTimer() {
         // Schedule a task to run after 30 seconds
         timer = Timer()
@@ -117,8 +131,7 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
             override fun run() {
                 // This code will run after 30 seconds
                 runOnUiThread {
-                    // Display toast indicating successful completion
-
+                    // save heart rate data and navigate to stats page
                     saveHeartRateData()
                     val intent = Intent(this@HeartActivity, HeartStatsActivity::class.java)
                     startActivity(intent)
@@ -128,6 +141,7 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
         }, 30 * 1000) // 30 seconds in milliseconds
     }
 
+    // save heart rate to firestore
     private fun saveHeartRateData() {
         val dateTimestamp = Calendar.getInstance().timeInMillis
         // set hashmap of stored data
@@ -179,19 +193,21 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
                 }
         }
     }
-
+    // Cancel the timer when the activity is destroyed to prevent memory leaks
     override fun onDestroy() {
-        // Cancel the timer when the activity is destroyed to prevent memory leaks
         timer?.cancel()
         super.onDestroy()
     }
 
+    // executor for the image analysis use case later
     private val executor: Executor
         get() = ContextCompat.getMainExecutor(this)
 
+    // function to start the cameraX
     private fun startCameraX() {
         cameraProvider?.unbindAll()
 
+        // setup the preview with the current view of the back lens
         val cameraSelector =
             CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
         val preview = Preview.Builder().build()
@@ -212,7 +228,10 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
         camera?.cameraControl?.enableTorch(true)
     }
 
+    // function to analyse the current preview image
     override fun analyze(image: ImageProxy) {
+
+        // the below codes take the current image (format: YUV_420_888) and converts it into a byte array
 
         // Get the planes
         val planes = image.planes
@@ -230,32 +249,39 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
         val yBuffer = planes[0].buffer
         buffer.put(yBuffer)
 
-        // Copy the U and V plane data
+        // Copy the U plane data
         val uBuffer = planes[1].buffer
         buffer.put(uBuffer)
 
+        // Copy the V plane data
         val vBuffer = planes[2].buffer
         buffer.put(vBuffer)
 
         // Convert the byte buffer to a byte array
         val imageByteArray = buffer.array()
 
-        // Process the imageByteArray as needed
+        // Process the imageByteArray to find average amount of red
         val imgAvg = ImageUtility.decodeYUV420SPtoRedAvg(imageByteArray, image.width, image.height)
 
-        // Close the image proxy
+        // Close the image proxy, this means it will move onto the next frame
         image.close()
 
+        // pass every imgAvg frame To heartRateCounter for processing
         heartRateCounter(imgAvg)
 
     }
 
+    // function to calculate heart rate
     private fun heartRateCounter(imgAvg: Int) {
+        // display template message while heart rate being calculated
         binding.textHeartRate.visibility = View.VISIBLE
+
+        // if image all white or black return because there is no point
         if (imgAvg == 0 || imgAvg == 255) {
             return
         }
 
+        // store the amount of indices into an average array for further calculations
         var averageArrayAvg = 0
         var averageArrayCount = 0
         for (i in averageArray.indices) {
@@ -265,23 +291,30 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
             }
         }
 
+        // calculates the rolling average of all the previous frames
         val rollingAverage = if (averageArrayCount > 0) averageArrayAvg / averageArrayCount else 0
 
-
+        // create newType variable so it can be switched when necessary
         var newType = currentType
         val heartImage = binding.imgHeartRateFull
+
+        // add a heart beat
         if (imgAvg < rollingAverage) {
             newType = TYPE.RED
             if (newType != currentType) {
                 beats++
                 Log.d("BEAT!!", "BEAT!! beats=$beats")
+
+                // change image to empty heart to symbol a heart beat
                 heartImage.setImageResource(R.drawable.heart_empty)
             }
+            // this will allow for cycling between the two images when a heart beat is detected
         } else if (imgAvg > rollingAverage) {
             newType = TYPE.GREEN
             heartImage.setImageResource(R.drawable.heart_white)
         }
 
+        // calculate the average index of the imgAvg
         if (averageIndex == averageArraySize) averageIndex = 0
         averageArray[averageIndex] = imgAvg
         averageIndex++
@@ -291,21 +324,29 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
             currentType = newType
         }
 
+        // code to update the heart rate every 2 seconds
         val endTime = System.currentTimeMillis()
         val totalTimeInSecs = (endTime - startTime) / 1000.0
         if (totalTimeInSecs >= 2) {
+
+            // calculate bps and dps
             val bps = beats / totalTimeInSecs
             val dpm = (bps * 60.0).toInt()
+
+            // if dpm to low or high reset beats and startTime
             if (dpm < 30 || dpm > 180) {
                 startTime = System.currentTimeMillis()
                 beats = 0.0
                 return
             }
 
+            // else increment the beatsIndex and update beatsArray
             if (beatsIndex == beatsArraySize) beatsIndex = 0
             beatsArray[beatsIndex] = dpm
             beatsIndex++
 
+
+            // store the beats array information so it can be used to calculate average beats per min
             var beatsArrayAvg = 0
             var beatsArrayCount = 0
             for (i in beatsArray.indices) {
@@ -314,23 +355,28 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
                     beatsArrayCount++
                 }
             }
+
             beatsAvg = beatsArrayAvg / beatsArrayCount
             // Display message if beatsAvg is zero
             if (beatsAvg == 0) {
                 binding.textHeartRate.text = "Please wait for heart rate measurement"
             } else {
+                // else display beat number
                 binding.textHeartRate.text = "$beatsAvg BPM"
             }
+            // reset everything so this process can start again
             startTime = System.currentTimeMillis()
             beats = 0.0
         }
     }
 
+    // code to obtain permissions if they have not been granted already
     private val activityResultLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         // Handle Permission granted/rejected
         var permissionGranted = true
+        // check to make sure all permissions are granted
         permissions.entries.forEach {
             if (it.key in REQUIRED_PERMISSIONS && !it.value) permissionGranted = false
         }
@@ -338,12 +384,16 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
             Toast.makeText(
                 baseContext, "Permission request denied", Toast.LENGTH_SHORT
             ).show()
+        // if they have start the camera x function
         } else {
             startCameraX()
         }
     }
 
+    // object to store needed permissions
     companion object {
+
+        // try and find the camera permission and older devices try and find the write to external storage permission
         private val REQUIRED_PERMISSIONS = mutableListOf(
             android.Manifest.permission.CAMERA
         ).apply {
@@ -352,7 +402,7 @@ class HeartActivity : AppCompatActivity(), ImageAnalysis.Analyzer {
             }
         }.toTypedArray()
 
-
+        // check if the permissions have been granted true or false
         fun hasPermissions(context: Context) = REQUIRED_PERMISSIONS.all {
             ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
         }

@@ -15,6 +15,16 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
+/*
+References:
+
+   Firebase (2024). Get data with Cloud Firestore. [online] Firebase.
+   Available at: https://firebase.google.com/docs/firestore/query-data/get-data [Accessed 29 April 2024].
+
+   CodingTutorials (2022). Recycler View in Android Studio | Populate Recycler View with Firebase Database (with Source Code). [online] Youtube.
+   Available at: https://www.youtube.com/watch?v=p2KmuAO8YsE [Accessed 29 April 2024].
+*/
+
 class WalkingStatsActivity : AppCompatActivity() {
 
     // global variables for binding, firebase, currentUser.uid and walk Recycler View

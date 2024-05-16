@@ -8,6 +8,14 @@ import com.example.fitnessapp.constants.StepsData
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+/*
+References:
+
+  CodingTutorials (2022). Recycler View in Android Studio | Populate Recycler View with Firebase Database (with Source Code). [online]
+  Youtube. Available at: https://www.youtube.com/watch?v=p2KmuAO8YsE [Accessed 8 May 2024].
+
+*/
+
 class StepAdapter(private val stepsDataList: List<StepsData>) :
     RecyclerView.Adapter<StepAdapter.StepViewHolder>() {
     // where the data for the steps will be displayed

@@ -19,8 +19,15 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
+/*
+References:
 
+   Firebase (2024). Get data with Cloud Firestore. [online] Firebase.
+   Available at: https://firebase.google.com/docs/firestore/query-data/get-data [Accessed 15 May 2024].
+
+*/
 class HeartStatsActivity : AppCompatActivity() {
+    // global variables for heart rate, firebase and binding
     private lateinit var binding: ActivityHeartStatsBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
@@ -97,7 +104,7 @@ class HeartStatsActivity : AppCompatActivity() {
                     // add this the data to the list
                     heartDataList.add(heartData)
                 }
-                // notify the walk adapter has been changed so that it can update the data
+                // notify the heart adapter has been changed so that it can update the data
                 heartAdapter.notifyDataSetChanged()
             }
             // error if failure to obtain walk data, this is unlikely to happen

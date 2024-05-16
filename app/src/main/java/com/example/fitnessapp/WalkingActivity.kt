@@ -52,6 +52,15 @@ import java.util.Calendar
 import java.util.jar.Manifest
 import kotlin.math.round
 
+/*
+References:
+
+ Lackner, P. (2020a). Drawing the Running Track on the Map - MVVM Running Tracker App - Part 14. [online] YouTube.
+ Available at: https://www.youtube.com/watch?v=fIekwHGo7cI&list=PLQkwcJG4YTCQ6emtoqSZS2FVwZR9FT3BV&index=14 [Accessed 19 Apr. 2024].
+
+  Firebase (2024a). Add Data to Cloud Firestore.
+  [online] Firebase. Available at: https://firebase.google.com/docs/firestore/manage-data/add-data#kotlin+ktx_2 [Accessed 19 Apr. 2024].
+*/
 
 class WalkingActivity : AppCompatActivity(), OnMapReadyCallback {
 

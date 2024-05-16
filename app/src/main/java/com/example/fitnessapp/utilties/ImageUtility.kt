@@ -2,7 +2,13 @@ package com.example.fitnessapp.utilties
 
 import android.util.Log
 
+/*
+References:
 
+  Wetherell, J. (2013). android-heart-rate-monitor. [online]
+  GitHub. Available at: https://github.com/phishman3579/android-heart-rate-monitor [Accessed 15 May 2024].
+
+*/
 object ImageUtility {
     fun decodeYUV420SPtoRedAvg(yuv420sp: ByteArray?, width: Int, height: Int): Int {
 

@@ -9,6 +9,13 @@ import com.vmadalin.easypermissions.EasyPermissions
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
+/*
+References:
+
+  Lackner, P. (2020b). Implementing the Stop Watch - MVVM Running Tracker App - Part 15. [online] YouTube.
+  Available at: https://www.youtube.com/watch?v=LTUmtp7IDEg&list=PLQkwcJG4YTCQ6emtoqSZS2FVwZR9FT3BV&index=15 [Accessed 24 Apr. 2024].
+
+*/
 object TrackingUtility {
 
     // function to obtain the formatted stop watch time for the text timer and notification

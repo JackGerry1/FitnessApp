@@ -1,5 +1,6 @@
 package com.example.fitnessapp.constants
 
+// data class for the step data
 data class StepsData(
     val currentDate: String? = null,
     val steps: Long? = null,

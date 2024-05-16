@@ -14,6 +14,14 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/*
+References:
+
+  CodingTutorials (2022). Recycler View in Android Studio | Populate Recycler View with Firebase Database (with Source Code). [online]
+  Youtube. Available at: https://www.youtube.com/watch?v=p2KmuAO8YsE [Accessed 28 April 2024].
+
+*/
+
 class ActivityAdapter(private val activityDataList: List<ActivityData>) : RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>() {
 
     // where the data for the runs and walks will be displayed

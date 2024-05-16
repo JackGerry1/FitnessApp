@@ -56,6 +56,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
+/*
+References:
+
+ Lackner, P. (2020a). Drawing the Running Track on the Map - MVVM Running Tracker App - Part 14. [online] YouTube.
+ Available at: https://www.youtube.com/watch?v=fIekwHGo7cI&list=PLQkwcJG4YTCQ6emtoqSZS2FVwZR9FT3BV&index=14 [Accessed 24 Apr. 2024].
+
+*/
+
 typealias Polyline = MutableList<LatLng>
 typealias Polylines = MutableList<Polyline>
 
