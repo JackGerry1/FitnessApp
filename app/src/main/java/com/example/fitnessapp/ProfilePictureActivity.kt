@@ -61,15 +61,18 @@ class ProfilePictureActivity : AppCompatActivity() {
     // contract for when a picture is uploaded from the camera
     private val contract = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
+            // Clear Glide's cache to ensure the new image is loaded
+            Glide.get(this).clearMemory()
+            Thread {
+                Glide.get(this).clearDiskCache()
+            }.start()
+
             // Update URI after taking picture
-            uri = Uri.fromFile(File(filesDir, "camera_photos.png"))
             image.setImageURI(null)
-            image.setImageURI(uri)
             Glide.with(this)
                 .load(uri)
                 .transform(CircleCrop())
                 .into(image)
-        // no photo has been chosen
         } else {
             Toast.makeText(this, "Picture not uploaded. Your profile picture remains unchanged.", Toast.LENGTH_SHORT).show()
         }
@@ -179,9 +182,9 @@ class ProfilePictureActivity : AppCompatActivity() {
         }
     }
 
-    // create a temporary image uri, when it is uploaded so it can be displayed before being uploaded to firebase
+    // create a temporary image uri with a unique filename to be displayed to the user
     private fun createImageUri(): Uri {
-        val image = File(filesDir, "camera_photos.png")
+        val image = File(filesDir, "camera_photo_${System.currentTimeMillis()}.png")
         return FileProvider.getUriForFile(
             this,
             "com.coding.fitnessapp.FileProvider",
