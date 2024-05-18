@@ -1,8 +1,11 @@
 package com.example.fitnessapp
 
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
@@ -11,6 +14,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -33,6 +37,9 @@ References:
 
     Firebase (2024b). Upload Files with Cloud Storage on Android.
     [online] Firebase. Available at: https://firebase.google.com/docs/storage/android/upload-files [Accessed 18 Apr. 2024].
+
+    Coding Reel (2022). Camera X Image Analysis Convert Realtime Preview to Grayscale in Java. [online]
+    YouTube. Available at: https://www.youtube.com/watch?v=4vv2PtfdWRQ [Accessed 13 May 2024].
 
     W L PROJECT (2023). Upload Image to Firebase in Android Studio Jetpack Compose | Upload Image Jetpack Compose | #4.
     [online] YouTube. Available at: https://www.youtube.com/watch?v=7ZBCvf2sh5E [Accessed 18 Apr. 2024].
@@ -87,6 +94,12 @@ class ProfilePictureActivity : AppCompatActivity() {
         btnSkip = findViewById(R.id.btnSkip)
         btnGallery = findViewById(R.id.btnGallery)
         image = findViewById(R.id.imgProfilePicture)
+
+        // if does not have permissions obtain them else do nothing
+        if (!hasPermissions(baseContext)) {
+            // Request permissions if not granted
+            activityResultLauncher.launch(REQUIRED_PERMISSIONS)
+        }
 
         // take the uri of the image from the camera and use in the college
         val btnCamera = findViewById<Button>(R.id.btnCamera)
@@ -174,5 +187,38 @@ class ProfilePictureActivity : AppCompatActivity() {
             "com.coding.fitnessapp.FileProvider",
             image
         )
+    }
+
+    private val activityResultLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        // Handle Permission granted/rejected
+        var permissionGranted = true
+        // check to make sure all permissions are granted
+        permissions.entries.forEach {
+            if (it.key in REQUIRED_PERMISSIONS && !it.value) permissionGranted = false
+        }
+        if (!permissionGranted) {
+            Toast.makeText(
+                baseContext, "Permission request denied", Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    // object to store needed permissions
+    companion object {
+        // try and find the camera permission and older devices try and find the write to external storage permission
+        private val REQUIRED_PERMISSIONS = mutableListOf(
+            android.Manifest.permission.CAMERA
+        ).apply {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+        }.toTypedArray()
+
+        // check if the permissions have been granted true or false
+        fun hasPermissions(context: Context) = REQUIRED_PERMISSIONS.all {
+            ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+        }
     }
 }
