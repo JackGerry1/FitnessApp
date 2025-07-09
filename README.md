@@ -35,22 +35,4 @@
 
 ![Workout Screen](github_assets/workout.png)
 
----
-
-## Requirements
-
-- Android Studio
-- Kotlin
-- Firebase
-- Google Maps API
-
----
-
-## Installation
-
-To get started with **FitnessApp**, follow the steps below:
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/your-username/FitnessApp.git
 
